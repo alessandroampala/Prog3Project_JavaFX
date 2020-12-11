@@ -3,7 +3,7 @@ package mail;
 import java.util.Date;
 import java.util.List;
 
-public class Email {
+public class Email implements Serializable {
     private final int id;
     private final String from;
     private final List<String> to;
