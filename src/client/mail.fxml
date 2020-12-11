@@ -1,7 +1,140 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.gluonhq.charm.glisten.control.CardPane?>
+<?import com.gluonhq.charm.glisten.control.Icon?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<GridPane fx:controller="client.Controller" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1">
-
-</GridPane>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <HBox fx:id="header" VBox.vgrow="NEVER">
+                    <children>
+                        <Icon fx:id="createMail" content="ADD_BOX" />
+                        <Label fx:id="username" text="Username" />
+                        <Icon fx:id="usernameIcon" content="ACCOUNT_CIRCLE">
+                            <HBox.margin>
+                                <Insets />
+                            </HBox.margin>
+                        </Icon>
+                    </children>
+                    <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                    </padding></HBox>
+                <SplitPane cacheShape="false" centerShape="false" dividerPositions="0.2525083612040134" focusTraversable="false" scaleShape="false" VBox.vgrow="ALWAYS">
+                    <items>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                            <children>
+                                <VBox layoutX="22.0" layoutY="-9.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <children>
+                                        <MenuBar>
+                                            <menus>
+                                                <Menu mnemonicParsing="false" text="In Arrivo">
+                                                    <items>
+                                                        <MenuItem mnemonicParsing="false" text="Close" />
+                                                    </items>
+                                                </Menu>
+                                                <Menu mnemonicParsing="false" text="Inviati">
+                                                    <items>
+                                                        <MenuItem mnemonicParsing="false" text="Delete" />
+                                                    </items>
+                                                </Menu>
+                                            </menus>
+                                        </MenuBar>
+                                        <CardPane>
+                                            <items>
+                                                <GridPane>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                    </columnConstraints>
+                                                    <rowConstraints>
+                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                    </rowConstraints>
+                                                    <children>
+                                                        <Label text="Titolo" />
+                                                        <Label text="Anteprima" GridPane.rowIndex="1" />
+                                                        <Label text="Mail@mail.com" GridPane.rowIndex="2" />
+                                                        <Label text="Ora" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                        <Label text="Data" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                    </children>
+                                                </GridPane>
+                                            </items>
+                                        </CardPane>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                        <AnchorPane>
+                            <children>
+                                <VBox prefHeight="362.4" prefWidth="416.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <children>
+                                        <Label text="Nuovo Messaggio" />
+                                        <GridPane>
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                            <children>
+                                                <Label text="Da:" />
+                                                <Label text="Mail@Mail.com" GridPane.columnIndex="1" />
+                                                <Label text="A:" GridPane.rowIndex="1" />
+                                                <Label text="Mail@Mail.com" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                            </children>
+                                        </GridPane>
+                                        <Label text="titolo" />
+                                        <Label text="Contenuto della mail" />
+                                    </children>
+                                </VBox>
+                                <VBox prefHeight="368.8" prefWidth="416.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <children>
+                                        <GridPane>
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                            <children>
+                                                <Label text="Da:" />
+                                                <Label text="Mail@Mail.com" GridPane.columnIndex="1" />
+                                                <Label text="A:" GridPane.rowIndex="1" />
+                                                <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <Label text="Oggetto:" GridPane.rowIndex="2" />
+                                                <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                            </children>
+                                        </GridPane>
+                                        <TextArea prefHeight="200.0" prefWidth="200.0" />
+                                    </children>
+                                </VBox>
+                            </children>
+                            <padding>
+                                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+                            </padding></AnchorPane>
+                    </items>
+                </SplitPane>
+            </children></VBox>
+    </children>
+</AnchorPane>
