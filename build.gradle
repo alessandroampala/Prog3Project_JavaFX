@@ -9,6 +9,8 @@ repositories {
 
 dependencies {
     compile 'com.jfoenix:jfoenix:9.0.8'
+    implementation 'org.kordamp.ikonli:ikonli-javafx:12.0.0'
+    implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack:12.0.0'
 }
 
 javafx {

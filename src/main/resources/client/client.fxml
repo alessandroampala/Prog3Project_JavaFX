@@ -14,20 +14,32 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<AnchorPane fx:controller="client.Client" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.Client">
     <children>
         <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <HBox fx:id="header" VBox.vgrow="NEVER">
-                    <children>
-
-                        <Label fx:id="username" text="Username" />
-
-                    </children>
                     <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                    </padding></HBox>
+                    </padding>
+                    <children>
+                        <FontIcon iconLiteral="fas-plus-square" iconSize="24" />
+                        <HBox alignment="TOP_RIGHT" HBox.hgrow="ALWAYS" VBox.vgrow="NEVER">
+                            <Label text="Username">
+                                <font>
+                                    <Font size="16.0" />
+                                </font>
+                                <padding>
+                                    <Insets right="5.0" />
+                                </padding>
+                            </Label>
+                            <FontIcon iconLiteral="far-user-circle" iconSize="24" />
+                        </HBox>
+                    </children>
+                </HBox>
                 <SplitPane cacheShape="false" centerShape="false" dividerPositions="0.2525083612040134" focusTraversable="false" scaleShape="false" VBox.vgrow="ALWAYS">
                     <items>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
@@ -83,7 +95,7 @@
                                         <GridPane>
                                             <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                             </columnConstraints>
                                             <rowConstraints>
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -95,19 +107,21 @@
                                                 <Label text="Mail@Mail.com" GridPane.columnIndex="1" />
                                                 <Label text="A:" GridPane.rowIndex="1" />
                                                 <Label text="Oggetto:" GridPane.rowIndex="2" />
-                                    <JFXTextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <JFXTextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <JFXTextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <JFXTextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                             </children>
                                         </GridPane>
-                              <JFXTextArea />
+                                        <JFXTextArea />
                                     </children>
                                 </VBox>
                             </children>
                             <padding>
                                 <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
-                            </padding></AnchorPane>
+                            </padding>
+                        </AnchorPane>
                     </items>
                 </SplitPane>
-            </children></VBox>
+            </children>
+        </VBox>
     </children>
 </AnchorPane>
