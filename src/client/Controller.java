@@ -1,4 +1,4 @@
-package mail;
+package client;
 
 import javafx.fxml.FXML;
 
