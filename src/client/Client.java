@@ -2,7 +2,7 @@ package client;
 
 import javafx.fxml.FXML;
 
-public class Controller {
+public class Client {
 
     @FXML
     public void initialize() {
