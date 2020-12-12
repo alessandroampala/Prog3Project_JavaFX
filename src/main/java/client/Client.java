@@ -113,6 +113,35 @@ public class Client {
         }).start();
     }
 
+    private void deleteEmail() {
+        new Thread(() -> {
+            Socket socket = null;
+            try {
+                socket = new Socket(ADDRESS, PORT);
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
+                outStream.writeObject(new Request("Delete emails", user));
+                Object obj = in.readObject();
+                if (obj != null && obj.getClass().equals(Request.class)) {
+                    System.out.println("Emails deleted");
+                    user.clearIdsToDelete();
+                }
+            } catch (IOException e) {
+                System.out.println("Connection Error");
+            } catch (ClassNotFoundException e) {
+                System.out.println("Class not found");
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        System.out.println("Error during socket disconnection");
+                    }
+                }
+            }
+        }).start();
+    }
+
     @FXML
     public void newMail() {
         newMailContainer.setVisible(true);

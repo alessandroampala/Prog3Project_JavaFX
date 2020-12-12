@@ -56,6 +56,15 @@ public class RequestHandler implements Runnable {
                             }
                         }
                         break;
+                    case "Deletes email":
+                        obj = request.getData();
+                        if (obj != null && obj.getClass().equals(User.class)) {
+                            for (int id : ((User) obj).getIdsToDelete()) {
+                                Persistence.deleteEmail(((User) obj).getMail(), id);
+                            }
+                            outStream.writeObject(new Request("OK", null));
+                        }
+                        break;
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

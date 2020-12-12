@@ -15,16 +15,14 @@ public class Persistence {
             dir.mkdirs();
     }
 
-    public static boolean addressesExist(List<String> addresses)
-    {
-        for(String address : addresses)
+    public static boolean addressesExist(List<String> addresses) {
+        for (String address : addresses)
             if (!addressExists(address))
                 return false;
         return true;
     }
 
-    public static boolean addressExists(String address)
-    {
+    public static boolean addressExists(String address) {
         File dir = new File(folderName + "/" + address);
         if (!dir.exists())
             return false;
@@ -77,6 +75,14 @@ public class Persistence {
         }
     }
 
+    public static void deleteEmail(String name, int id) {
+        String filePath = folderName + "/" + name + "/" + id;
+        if (!new File(filePath).exists())
+            return;
+        File in = new File(filePath);
+        in.delete();
+    }
+
     public static List<Email> loadEmailsFromId(String name, int id) {
         List<Email> emails = new ArrayList<>();
         File dir = new File(folderName + "/" + name);
@@ -109,17 +115,16 @@ public class Persistence {
         return loadEmailsFromId(name, 0);
     }
 
-    private static int calculateNextId(String name)
-    {
+    private static int calculateNextId(String name) {
         List<Email> emails = new ArrayList<>();
         File dir = new File(folderName + "/" + name);
         File[] files = dir.listFiles();
 
         int max = -1;
-        if(files != null)
-        for(File f : files)
-            if(Integer.parseInt(f.getName()) > max)
-                max =  Integer.parseInt(f.getName());
+        if (files != null)
+            for (File f : files)
+                if (Integer.parseInt(f.getName()) > max)
+                    max = Integer.parseInt(f.getName());
         return max + 1;
     }
 }
