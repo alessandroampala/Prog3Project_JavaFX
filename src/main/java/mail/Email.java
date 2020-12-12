@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Email implements Serializable {
-    private final int id;
+    private int id;
     private final String from;
     private final List<String> to;
     private final String object;
@@ -43,5 +43,9 @@ public class Email implements Serializable {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

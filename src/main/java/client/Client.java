@@ -43,7 +43,7 @@ public class Client {
 
     @FXML
     public void initialize() {
-
+        username.setText("gatto@gatto.com");
     }
 
     @FXML
@@ -76,21 +76,62 @@ public class Client {
             System.out.println("message");
             return;
         }
-        Request send = new Request("Send email", new Email(-1, username.getText(), Arrays.asList(emails), subject.getText(), message.getText(), new Date()));
-        sendRequest(send);
-    }
-
-    private void sendRequest(Request send) {
+        Email email = new Email(-1, username.getText(), Arrays.asList(emails), subject.getText(), message.getText(), new Date());
+        Request send = new Request("Send email", email);
         new Thread(() -> {
             Socket socket = null;
             try {
                 socket = new Socket(ADDRESS, PORT);
-
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-
                 ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
                 outStream.writeObject(send);
+                Object obj = in.readObject();
+                if(obj != null && obj.getClass().equals(Request.class))
+                {
+                    Request received = (Request) obj;
+                    switch (received.getType())
+                    {
+                        case "OK":
+                            System.out.println("Email sent");
+                            obj = received.getData();
+                            if(obj != null && obj.getClass().equals(Integer.class))
+                            {
+                                int mailId = (Integer) obj;
+                                email.setId(mailId);
+                                //TODO: add this email to Inviati List
 
+                            }
+                            break;
+                        default:
+                            System.out.println(received.getType());
+                            break;
+                    }
+                }
+
+            } catch (IOException e) {
+                System.out.println("Connection Error");
+            } catch (ClassNotFoundException e) {
+                System.out.println("Class not found");
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        System.out.println("Error during socket disconnection");
+                    }
+                }
+            }
+        }).start();
+    }
+
+    /*private void sendRequest(Request send) {
+        new Thread(() -> {
+            Socket socket = null;
+            try {
+                socket = new Socket(ADDRESS, PORT);
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
+                outStream.writeObject(send);
                 receivedRequest((Request) in.readObject());
             } catch (IOException e) {
                 System.out.println("Connection Error");
@@ -114,7 +155,7 @@ public class Client {
                 System.out.println("Email sent");
                 break;
         }
-    }
+    }*/
 
     public void readMail() {
         newMailContainer.setVisible(false);

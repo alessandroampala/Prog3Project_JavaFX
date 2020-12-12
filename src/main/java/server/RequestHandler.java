@@ -1,11 +1,13 @@
 package server;
 
+import mail.Email;
 import mail.Request;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.List;
 
 public class RequestHandler implements Runnable{
 
@@ -29,7 +31,25 @@ public class RequestHandler implements Runnable{
                 switch (request.getType())
                 {
                     //HANDLE REQUEST
-
+                    case "Send email":
+                        Object obj = request.getData();
+                        if(obj != null && obj.getClass().equals(Email.class))
+                        {
+                            Email email = (Email) obj;
+                            List<String> addresses = email.getTo();
+                            if(Persistence.addressExists(email.getFrom()) && Persistence.addressesExist(addresses))
+                            {
+                                int mailId = Persistence.saveEmail(email.getFrom(), email);
+                                for(String address : addresses)
+                                    Persistence.saveEmail(address, email);
+                                outStream.writeObject(new Request("OK", mailId)); //send back mailId
+                            }
+                            else
+                            {
+                                outStream.writeObject(new Request("ERRORE negli indirizzi di destinazione", null)); //send back mailId
+                            }
+                        }
+                        break;
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
