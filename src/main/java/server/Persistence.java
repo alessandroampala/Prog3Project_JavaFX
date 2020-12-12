@@ -1,4 +1,4 @@
-package main.java.server;
+package server;
 
 import mail.Email;
 

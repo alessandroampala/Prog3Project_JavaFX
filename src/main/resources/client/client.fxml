@@ -20,6 +20,7 @@
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.TextArea?>
 <?import com.jfoenix.controls.JFXSnackbar?>
+<?import javafx.scene.control.Button?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
             prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="client.Client">
@@ -59,12 +60,20 @@
                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
-                                        <MenuBar>
-                                            <menus>
-                                                <Menu mnemonicParsing="false" text="In Arrivo"/>
-                                                <Menu mnemonicParsing="false" text="Inviati"/>
-                                            </menus>
-                                        </MenuBar>
+                                        <HBox VBox.vgrow="NEVER">
+                                            <children>
+                                                <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="In Arrivo" HBox.hgrow="ALWAYS">
+                                                    <cursor>
+                                                        <Cursor fx:constant="HAND" />
+                                                    </cursor>
+                                                </Button>
+                                                <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Inviati" HBox.hgrow="ALWAYS">
+                                                    <cursor>
+                                                        <Cursor fx:constant="HAND" />
+                                                    </cursor>
+                                                </Button>
+                                            </children>
+                                        </HBox>
 
                                     </children>
                                 </VBox>
