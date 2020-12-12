@@ -16,6 +16,7 @@ import mail.Request;
 import server.RequestHandler;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -84,16 +85,16 @@ public class Client {
             try {
                 socket = new Socket(ADDRESS, PORT);
 
-                Scanner in = new Scanner(socket.getInputStream());
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
                 ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
                 outStream.writeObject(send);
 
-                while (in.hasNext()) {
-                    System.out.println(in.nextLine());
-                }
+                receivedRequest((Request) in.readObject());
             } catch (IOException e) {
                 System.out.println("Connection Error");
+            } catch (ClassNotFoundException e) {
+                System.out.println("Class not found");
             } finally {
                 if (socket != null) {
                     try {
@@ -104,6 +105,14 @@ public class Client {
                 }
             }
         }).start();
+    }
+
+    private void receivedRequest(Request received) {
+        switch (received.getType()) {
+            case "Send email":
+                System.out.println("Email sent");
+                break;
+        }
     }
 
     public void readMail() {
