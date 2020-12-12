@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class Email implements Serializable {
+public class Email implements Serializable, Comparable<Email> {
     private int id;
     private final String from;
     private final List<String> to;
@@ -47,5 +47,10 @@ public class Email implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Override
+    public int compareTo(Email o) {
+        return o.getId() - this.id;
     }
 }

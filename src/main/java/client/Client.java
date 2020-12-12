@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import mail.Email;
 import mail.Request;
+import mail.User;
 import server.RequestHandler;
 
 import java.io.IOException;
@@ -24,14 +25,19 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class Client {
     private static final String ADDRESS = "localhost";
     private static final int PORT = 9000;
 
+    private User user;
+    private List<Email> emailsSent, emailsReceived;
+
     @FXML
-    private Label username;
+    private Label username, fromNewMail;
     @FXML
     private VBox newMailContainer, readMailContainer;
     @FXML
@@ -44,6 +50,67 @@ public class Client {
     @FXML
     public void initialize() {
         username.setText("gatto@gatto.com");
+        fromNewMail.setText("gatto@gatto.com");
+        user = new User("gatto@gatto.com");
+        emailsSent = new ArrayList<>();
+        emailsReceived = new ArrayList<>();
+        ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
+        exec.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                loadEmails();
+            }
+        }, 0, 2, TimeUnit.MINUTES);
+    }
+
+    private void loadEmails() {
+        new Thread(() -> {
+            Socket socket = null;
+            try {
+                socket = new Socket(ADDRESS, PORT);
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
+                outStream.writeObject(new Request("Receive emails", user));
+                Object obj = in.readObject();
+                if (obj != null && obj.getClass().equals(Request.class)) {
+                    Request received = (Request) obj;
+                    switch (received.getType()) {
+                        case "OK":
+                            System.out.println("Got emails");
+                            obj = received.getData();
+                            if (obj != null && obj.getClass().getComponentType().equals(Email.class)) {
+                                List<Email> emails = (List<Email>) obj;
+                                Collections.sort(emails);
+                                for (Email email : emails) {
+                                    if (email.getFrom().equals(username.getText()))
+                                        emailsReceived.add(email);
+                                    else
+                                        emailsSent.add(email);
+                                }
+                                user.setLastId(emails.get(0).getId() + 1);
+                                //TODO: add this emails to List
+                            }
+                            break;
+                        default:
+                            System.out.println(received.getType());
+                            break;
+                    }
+                }
+
+            } catch (IOException e) {
+                System.out.println("Connection Error");
+            } catch (ClassNotFoundException e) {
+                System.out.println("Class not found");
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        System.out.println("Error during socket disconnection");
+                    }
+                }
+            }
+        }).start();
     }
 
     @FXML
@@ -86,16 +153,13 @@ public class Client {
                 ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
                 outStream.writeObject(send);
                 Object obj = in.readObject();
-                if(obj != null && obj.getClass().equals(Request.class))
-                {
+                if (obj != null && obj.getClass().equals(Request.class)) {
                     Request received = (Request) obj;
-                    switch (received.getType())
-                    {
+                    switch (received.getType()) {
                         case "OK":
                             System.out.println("Email sent");
                             obj = received.getData();
-                            if(obj != null && obj.getClass().equals(Integer.class))
-                            {
+                            if (obj != null && obj.getClass().equals(Integer.class)) {
                                 int mailId = (Integer) obj;
                                 email.setId(mailId);
                                 //TODO: add this email to Inviati List
