@@ -84,7 +84,7 @@
                         </AnchorPane>
                         <AnchorPane>
                             <children>
-                                <HBox fx:id="unselectedMailContainer" alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <HBox fx:id="unselectedMailContainer" alignment="CENTER" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
                                         <Label text="Clicca ">
                                             <font>
@@ -157,11 +157,11 @@
                                         <Label text="Contenuto della mail" />
                                     </children>
                                 </VBox>
-                                <VBox fx:id="newMailContainer" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <VBox fx:id="newMailContainer" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
                               <HBox alignment="TOP_RIGHT" prefHeight="37.0" prefWidth="353.0">
                                  <children>
-                                    <Button contentDisplay="TOP" mnemonicParsing="false" text="Invia">
+                                    <Button contentDisplay="TOP" mnemonicParsing="false" onAction="#sendMail" text="Invia">
                                        <graphic>
                                           <ImageView fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                              <image>
