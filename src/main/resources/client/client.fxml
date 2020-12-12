@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXTextArea?>
+
 <?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
@@ -17,47 +17,52 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.Client">
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.TextArea?>
+<?import com.jfoenix.controls.JFXSnackbar?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+            prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="client.Client">
     <children>
-        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <HBox fx:id="header" VBox.vgrow="NEVER">
                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                     </padding>
                     <children>
-                        <FontIcon iconLiteral="fas-plus-square" iconSize="24" />
+                        <FontIcon onMouseClicked="#newMail" iconLiteral="fas-plus-square" iconSize="24">
+                            <cursor>
+                                <Cursor fx:constant="HAND"/>
+                            </cursor>
+                        </FontIcon>
                         <HBox alignment="TOP_RIGHT" HBox.hgrow="ALWAYS" VBox.vgrow="NEVER">
-                            <Label text="Username">
+                            <Label fx:id="username" text="Username">
                                 <font>
-                                    <Font size="16.0" />
+                                    <Font size="16.0"/>
                                 </font>
                                 <padding>
-                                    <Insets right="5.0" />
+                                    <Insets right="5.0"/>
                                 </padding>
                             </Label>
-                            <FontIcon iconLiteral="far-user-circle" iconSize="24" />
+                            <FontIcon iconLiteral="far-user-circle" iconSize="24"/>
                         </HBox>
                     </children>
                 </HBox>
-                <SplitPane cacheShape="false" centerShape="false" dividerPositions="0.2525083612040134" focusTraversable="false" scaleShape="false" VBox.vgrow="ALWAYS">
+                <SplitPane cacheShape="false" centerShape="false" dividerPositions="0.2525083612040134"
+                           focusTraversable="false" scaleShape="false" VBox.vgrow="ALWAYS">
                     <items>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                             <children>
-                                <VBox layoutX="22.0" layoutY="-9.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <VBox layoutX="22.0" layoutY="-9.0" prefHeight="200.0" prefWidth="100.0"
+                                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
                                         <MenuBar>
                                             <menus>
-                                                <Menu mnemonicParsing="false" text="In Arrivo">
-                                                    <items>
-                                                        <MenuItem mnemonicParsing="false" text="Close" />
-                                                    </items>
-                                                </Menu>
-                                                <Menu mnemonicParsing="false" text="Inviati">
-                                                    <items>
-                                                        <MenuItem mnemonicParsing="false" text="Delete" />
-                                                    </items>
-                                                </Menu>
+                                                <Menu mnemonicParsing="false" text="In Arrivo"/>
+                                                <Menu mnemonicParsing="false" text="Inviati"/>
                                             </menus>
                                         </MenuBar>
 
@@ -67,56 +72,95 @@
                         </AnchorPane>
                         <AnchorPane>
                             <children>
-                                <VBox prefHeight="362.4" prefWidth="416.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <HBox AnchorPane.bottomAnchor="0.0"
+                                      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                      AnchorPane.topAnchor="0.0" fx:id="unselectedMailContainer" alignment="CENTER">
                                     <children>
-                                        <Label text="Nuovo Messaggio" />
+                                        <Label text="Clicca ">
+                                            <font>
+                                                <Font size="16.0"/>
+                                            </font>
+                                        </Label>
+                                        <FontIcon onMouseClicked="#newMail" iconLiteral="fas-plus-square" iconSize="24">
+                                            <cursor>
+                                                <Cursor fx:constant="HAND"/>
+                                            </cursor>
+                                        </FontIcon>
+                                        <Label text=" Per scrivere una mail.">
+                                            <font>
+                                                <Font size="16.0"/>
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                                <VBox visible="false" AnchorPane.bottomAnchor="0.0"
+                                      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                      AnchorPane.topAnchor="0.0" fx:id="readMailContainer">
+                                    <children>
+                                        <Label text="Nuovo Messaggio"/>
                                         <GridPane>
                                             <columnConstraints>
-                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
                                             </columnConstraints>
                                             <rowConstraints>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                             </rowConstraints>
                                             <children>
-                                                <Label text="Da:" />
-                                                <Label text="Mail@Mail.com" GridPane.columnIndex="1" />
-                                                <Label text="A:" GridPane.rowIndex="1" />
-                                                <Label text="Mail@Mail.com" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Label text="Da:"/>
+                                                <Label text="Mail@Mail.com" GridPane.columnIndex="1"/>
+                                                <Label text="A:" GridPane.rowIndex="1"/>
+                                                <Label text="Mail@Mail.com" GridPane.columnIndex="1"
+                                                       GridPane.rowIndex="1"/>
                                             </children>
                                         </GridPane>
-                                        <Label text="titolo" />
-                                        <Label text="Contenuto della mail" />
+                                        <Label text="titolo"/>
+                                        <Label text="Contenuto della mail"/>
                                     </children>
                                 </VBox>
-                                <VBox prefHeight="368.8" prefWidth="416.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <VBox visible="false" AnchorPane.bottomAnchor="0.0"
+                                      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                      AnchorPane.topAnchor="0.0" fx:id="newMailContainer">
                                     <children>
                                         <GridPane>
                                             <columnConstraints>
-                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
                                             </columnConstraints>
                                             <rowConstraints>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                             </rowConstraints>
                                             <children>
-                                                <Label text="Da:" />
-                                                <Label text="Mail@Mail.com" GridPane.columnIndex="1" />
-                                                <Label text="A:" GridPane.rowIndex="1" />
-                                                <Label text="Oggetto:" GridPane.rowIndex="2" />
-                                                <JFXTextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                <JFXTextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <Label text="Da:"/>
+                                                <Label text="Mail@Mail.com" GridPane.columnIndex="1"/>
+                                                <Label text="A:" GridPane.rowIndex="1"/>
+                                                <Label text="Oggetto:" GridPane.rowIndex="2"/>
+                                                <JFXTextField fx:id="to" GridPane.columnIndex="1"
+                                                              GridPane.columnSpan="2" GridPane.rowIndex="1"/>
+                                                <JFXTextField fx:id="subject" GridPane.columnIndex="1"
+                                                              GridPane.columnSpan="2" GridPane.rowIndex="2"/>
+                                                <FontIcon GridPane.columnIndex="2" onMouseClicked="#sendMail"
+                                                          iconLiteral="far-paper-plane" iconSize="16">
+                                                    <cursor>
+                                                        <Cursor fx:constant="HAND"/>
+                                                    </cursor>
+                                                </FontIcon>
                                             </children>
                                         </GridPane>
-                                        <JFXTextArea />
+                                        <TextArea fx:id="message">
+                                            <VBox.margin>
+                                                <Insets top="10.0"/>
+                                            </VBox.margin>
+                                        </TextArea>
                                     </children>
                                 </VBox>
                             </children>
                             <padding>
-                                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+                                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0"/>
                             </padding>
                         </AnchorPane>
                     </items>
