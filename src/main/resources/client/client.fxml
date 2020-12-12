@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -16,11 +12,10 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.TextArea?>
-<?import com.jfoenix.controls.JFXSnackbar?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
             prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="client.Client">
@@ -62,14 +57,18 @@
                                     <children>
                                         <HBox VBox.vgrow="NEVER">
                                             <children>
-                                                <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="In Arrivo" HBox.hgrow="ALWAYS">
+                                                <Button maxHeight="1.7976931348623157E308"
+                                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                                        text="In Arrivo" HBox.hgrow="ALWAYS">
                                                     <cursor>
-                                                        <Cursor fx:constant="HAND" />
+                                                        <Cursor fx:constant="HAND"/>
                                                     </cursor>
                                                 </Button>
-                                                <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Inviati" HBox.hgrow="ALWAYS">
+                                                <Button maxHeight="1.7976931348623157E308"
+                                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                                        text="Inviati" HBox.hgrow="ALWAYS">
                                                     <cursor>
-                                                        <Cursor fx:constant="HAND" />
+                                                        <Cursor fx:constant="HAND"/>
                                                     </cursor>
                                                 </Button>
                                             </children>
@@ -148,10 +147,10 @@
                                                 <Label text="Mail@Mail.com" GridPane.columnIndex="1"/>
                                                 <Label text="A:" GridPane.rowIndex="1"/>
                                                 <Label text="Oggetto:" GridPane.rowIndex="2"/>
-                                                <JFXTextField fx:id="to" GridPane.columnIndex="1"
-                                                              GridPane.columnSpan="2" GridPane.rowIndex="1"/>
-                                                <JFXTextField fx:id="subject" GridPane.columnIndex="1"
-                                                              GridPane.columnSpan="2" GridPane.rowIndex="2"/>
+                                                <TextField fx:id="to" GridPane.columnIndex="1"
+                                                           GridPane.columnSpan="2" GridPane.rowIndex="1"/>
+                                                <TextField fx:id="subject" GridPane.columnIndex="1"
+                                                           GridPane.columnSpan="2" GridPane.rowIndex="2"/>
                                                 <FontIcon GridPane.columnIndex="2" onMouseClicked="#sendMail"
                                                           iconLiteral="far-paper-plane" iconSize="16">
                                                     <cursor>
