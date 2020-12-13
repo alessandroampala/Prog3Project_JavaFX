@@ -37,4 +37,6 @@ public class Server {
 
         }).start();
     }
+
+    //TODO: shutdown thread when closing server
 }

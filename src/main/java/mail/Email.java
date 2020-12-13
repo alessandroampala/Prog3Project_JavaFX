@@ -56,4 +56,18 @@ public class Email implements Serializable, Comparable<Email> {
     public int compareTo(Email o) {
         return o.getId() - this.id;
     }
+
+    public String getStringTo()
+    {
+        StringBuilder toReturn = new StringBuilder();
+        for(String s : this.to) {
+            toReturn.append(s);
+            toReturn.append(", ");
+        }
+        if(toReturn.length() > 2) {
+            toReturn.deleteCharAt(toReturn.length() - 1);
+            toReturn.deleteCharAt(toReturn.length() - 1);
+        }
+        return toReturn.toString();
+    }
 }

@@ -1,18 +1,15 @@
 package client;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import mail.Email;
 import mail.Request;
 import mail.User;
@@ -21,7 +18,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +32,8 @@ public class Client {
     private static final int PORT = 9000;
 
     private User user;
-    private List<Email> emailsSent, emailsReceived;
+    private final ObservableList<Email> emailsSent = FXCollections.observableArrayList();
+    private final ObservableList<Email> emailsReceived = FXCollections.observableArrayList();
     private ScheduledExecutorService scheduledExecutor = null;
 
     @FXML
@@ -49,6 +50,10 @@ public class Client {
     private Button reply, replyToAll;
     @FXML
     private Label fromMail, toMail, subjectMail, messageMail;
+    @FXML
+    private ListView<Email> listViewReceived, listViewSent;
+    @FXML
+    private TabPane tabPane;
 
     @FXML
     public void exitApplication() {
@@ -61,10 +66,49 @@ public class Client {
         this.user = user;
         username.setText(user.getMail());
         fromNewMail.setText(user.getMail());
-        emailsSent = new ArrayList<>();
-        emailsReceived = new ArrayList<>();
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
         scheduledExecutor.scheduleAtFixedRate(new Thread(this::loadEmails), 0, 2, TimeUnit.MINUTES);
+        listViewReceived.setItems(emailsReceived);
+        listViewSent.setItems(emailsSent);
+
+        //Create cell with associated email information
+        listViewReceived.setCellFactory(param -> new ListCell<Email>() {
+            @Override
+            protected void updateItem(Email email, boolean empty) {
+                super.updateItem(email, empty);
+
+                if (empty || email == null) {
+                    setText(null);
+                } else {
+                    setText(email.getObject());
+                }
+            }
+        });
+        listViewSent.setCellFactory(listViewReceived.getCellFactory());
+
+        // Display selected mail on list selection
+        ChangeListener<Email> selectedChangeListener = new ChangeListener<Email>() {
+            @Override
+            public void changed(ObservableValue<? extends Email> observable, Email oldValue, Email newValue) {
+                if(newValue != null) {
+                    subjectMail.setText(newValue.getObject());
+                    messageMail.setText(newValue.getText());
+                    fromMail.setText(newValue.getFrom());
+                    toMail.setText(newValue.getStringTo());
+                    readMail();
+                }
+            }
+        };
+        listViewReceived.getSelectionModel().selectedItemProperty().addListener(selectedChangeListener);
+        listViewSent.getSelectionModel().selectedItemProperty().addListener(selectedChangeListener);
+
+        // Clear list selection when changing tab
+        tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
+            @Override
+            public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
+                clearListsSelection();
+            }
+        });
     }
 
     private void loadEmails() {
@@ -86,9 +130,9 @@ public class Client {
                             Collections.sort(emails);
                             for (Email email : emails) {
                                 if (email.getFrom().equals(username.getText()))
-                                    emailsReceived.add(email);
-                                else
                                     emailsSent.add(email);
+                                else
+                                    emailsReceived.add(email);
                             }
                             user.setLastId(emails.get(0).getId() + 1);
                             //TODO: add this emails to List
@@ -144,13 +188,6 @@ public class Client {
     }
 
     @FXML
-    public void newMail() {
-        newMailContainer.setVisible(true);
-        readMailContainer.setVisible(false);
-        unselectedMailContainer.setVisible(false);
-    }
-
-    @FXML
     public void replyActionEvent(ActionEvent event) {
         Object source = event.getSource();
 
@@ -162,7 +199,7 @@ public class Client {
         if (source.equals(reply)) {
             to.setText(fromMailText);
         } else if (source.equals(replyToAll)) {
-            toMailText.replace(username.getText(), fromMailText);
+            toMailText.replace(user.getMail(), fromMailText);
             to.setText(toMailText);
         } else {
             to.setText("");
@@ -213,8 +250,15 @@ public class Client {
                         if (obj != null && obj.getClass().equals(Integer.class)) {
                             int mailId = (Integer) obj;
                             email.setId(mailId);
-                            //TODO: add this email to Inviati List
-
+                            //Add this email to Inviati List (run on FX thread)
+                            Platform.runLater(new Runnable(){
+                                @Override
+                                public void run() {
+                                    emailsSent.add(email);
+                                    Collections.sort(emailsSent);
+                                }
+                            });
+                            unselectedMail();
                         }
                     } else {
                         System.out.println(received.getType());
@@ -237,9 +281,29 @@ public class Client {
         }).start();
     }
 
+    @FXML
+    public void newMail() {
+        clearListsSelection();
+        newMailContainer.setVisible(true);
+        readMailContainer.setVisible(false);
+        unselectedMailContainer.setVisible(false);
+    }
+
     public void readMail() {
         newMailContainer.setVisible(false);
         readMailContainer.setVisible(true);
         unselectedMailContainer.setVisible(false);
+    }
+
+    public void unselectedMail() {
+        newMailContainer.setVisible(false);
+        readMailContainer.setVisible(false);
+        unselectedMailContainer.setVisible(true);
+    }
+
+    private void clearListsSelection()
+    {
+        listViewReceived.getSelectionModel().clearSelection();
+        listViewSent.getSelectionModel().clearSelection();
     }
 }

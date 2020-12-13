@@ -61,7 +61,7 @@
                             <children>
                                 <VBox layoutX="22.0" layoutY="-9.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                              <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                                 <tabs>
                                   <Tab text="In Arrivo">
                                     <content>
@@ -113,11 +113,6 @@
                                 </HBox>
                                 <VBox fx:id="readMailContainer" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
-                                        <Label text="Nuovo Messaggio">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
                                         <GridPane>
                                             <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
