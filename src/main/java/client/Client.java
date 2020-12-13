@@ -120,7 +120,7 @@ public class Client {
                             List<Email> emails = (List<Email>) obj;
                             Collections.sort(emails);
                             for (Email email : emails) {
-                                if (email.getFrom().equals(username.getText()))
+                                if (email.getIsSent())
                                     emailsSent.add(email);
                                 else
                                     emailsReceived.add(email);
@@ -226,7 +226,7 @@ public class Client {
             System.out.println("message");
             return;
         }
-        Email email = new Email(-1, username.getText(), Arrays.asList(emails), subject.getText(), message.getText(), new Date());
+        Email email = new Email(-1, username.getText(), Arrays.asList(emails), subject.getText(), message.getText(), new Date(), true);
         Request send = new Request("Send email", email);
         new Thread(() -> {
             Socket socket = null;
@@ -248,6 +248,9 @@ public class Client {
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
+                                    if (Arrays.asList(emails).contains(fromNewMail.getText()))
+                                        //TODO:add to received
+                                        System.out.println("");
                                     emailsSent.add(email);
                                     Collections.sort(emailsSent);
                                 }

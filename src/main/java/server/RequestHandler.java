@@ -37,6 +37,7 @@ public class RequestHandler implements Runnable {
                             List<String> addresses = email.getTo();
                             if (Persistence.addressExists(email.getFrom()) && Persistence.addressesExist(addresses)) {
                                 int mailId = Persistence.saveEmail(email.getFrom(), email);
+                                email.setIsSent(false);
                                 for (String address : addresses)
                                     Persistence.saveEmail(address, email);
                                 outStream.writeObject(new Request("OK", mailId)); //send back mailId
@@ -60,6 +61,7 @@ public class RequestHandler implements Runnable {
                         obj = request.getData();
                         if (obj != null && obj.getClass().equals(User.class)) {
                             for (int id : ((User) obj).getIdsToDelete()) {
+                                System.out.println(id);
                                 Persistence.deleteEmail(((User) obj).getMail(), id);
                             }
                             outStream.writeObject(new Request("OK", null));

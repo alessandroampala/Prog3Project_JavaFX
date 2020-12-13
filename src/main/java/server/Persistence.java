@@ -45,6 +45,14 @@ public class Persistence {
             oos.writeObject(data);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (fout != null) {
+                try {
+                    fout.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return id;
     }
@@ -57,7 +65,6 @@ public class Persistence {
         try {
             in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(filePath)));
             Object o = in.readObject();
-            Email email;
             if (o != null && o.getClass().equals(Email.class))
                 return (Email) o;
             else
@@ -85,7 +92,6 @@ public class Persistence {
         for (File file : files) {
             users.add(new User(file.getName()));
         }
-        System.out.println(users.size());
         return users;
     }
 

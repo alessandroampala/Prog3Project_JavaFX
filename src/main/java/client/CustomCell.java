@@ -65,21 +65,18 @@ public class CustomCell extends ListCell<Email> {
             fromLabel.setText(email.getFrom());
             dateLabel.setText(email.getDate().toString());
 
-            checkToDelete.selectedProperty().addListener(new ChangeListener<Boolean>() {
-                @Override
-                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                    if (checkToDelete.isSelected()) {
-                        user.addIdsToDelete(email.getId());
-                    } else {
-                        user.removeIdsToDelete(email.getId());
-                    }
-                    if (user.getIdsToDelete().size() > 0) {
-                        deleteBtnReceived.setDisable(false);
-                        deleteBtnSent.setDisable(false);
-                    } else {
-                        deleteBtnReceived.setDisable(true);
-                        deleteBtnSent.setDisable(true);
-                    }
+            checkToDelete.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue) {
+                    user.addIdsToDelete(email.getId());
+                } else {
+                    user.removeIdsToDelete(email.getId());
+                }
+                if (user.getIdsToDelete().size() > 0) {
+                    deleteBtnReceived.setDisable(false);
+                    deleteBtnSent.setDisable(false);
+                } else {
+                    deleteBtnReceived.setDisable(true);
+                    deleteBtnSent.setDisable(true);
                 }
             });
 

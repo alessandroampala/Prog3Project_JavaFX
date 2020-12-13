@@ -14,14 +14,24 @@ public class Email implements Serializable, Comparable<Email> {
     private final String object;
     private final String text;
     private final Date date;
+    private boolean isSent;
 
-    public Email(int id, String from, List<String> to, String object, String text, Date date) {
+    public Email(int id, String from, List<String> to, String object, String text, Date date, boolean isSent) {
         this.id = id;
         this.from = from;
         this.to = to;
         this.object = object;
         this.text = text;
         this.date = date;
+        this.isSent = isSent;
+    }
+
+    public void setIsSent(boolean isSent) {
+        this.isSent = isSent;
+    }
+
+    public boolean getIsSent() {
+        return isSent;
     }
 
     public String getFrom() {
@@ -57,14 +67,13 @@ public class Email implements Serializable, Comparable<Email> {
         return o.getId() - this.id;
     }
 
-    public String getStringTo()
-    {
+    public String getStringTo() {
         StringBuilder toReturn = new StringBuilder();
-        for(String s : this.to) {
+        for (String s : this.to) {
             toReturn.append(s);
             toReturn.append(", ");
         }
-        if(toReturn.length() > 2) {
+        if (toReturn.length() > 2) {
             toReturn.deleteCharAt(toReturn.length() - 1);
             toReturn.deleteCharAt(toReturn.length() - 1);
         }
