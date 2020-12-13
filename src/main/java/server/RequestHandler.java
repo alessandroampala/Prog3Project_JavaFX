@@ -56,7 +56,7 @@ public class RequestHandler implements Runnable {
                             }
                         }
                         break;
-                    case "Delete email":
+                    case "Delete emails":
                         obj = request.getData();
                         if (obj != null && obj.getClass().equals(User.class)) {
                             for (int id : ((User) obj).getIdsToDelete()) {

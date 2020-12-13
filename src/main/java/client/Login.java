@@ -84,10 +84,10 @@ public class Login {
         AnchorPane pane = loader.load();
         Stage stage = new Stage();
         stage.setTitle("Mail");
-        stage.setMinWidth(600);
-        stage.setMinHeight(400);
-        stage.setWidth(600);
-        stage.setHeight(400);
+        stage.setMinWidth(900);
+        stage.setMinHeight(500);
+        stage.setWidth(900);
+        stage.setHeight(500);
         stage.setScene(new Scene(pane));
         Client client = loader.getController();
         for (User user : usersList) {

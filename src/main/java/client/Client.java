@@ -18,10 +18,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +34,7 @@ public class Client {
     private ScheduledExecutorService scheduledExecutor = null;
 
     @FXML
-    private Label username, fromNewMail;
+    private Label username, fromNewMail, fromMail, toMail, subjectMail, messageMail;
     @FXML
     private VBox newMailContainer, readMailContainer;
     @FXML
@@ -47,9 +44,7 @@ public class Client {
     @FXML
     private TextArea message;
     @FXML
-    private Button reply, replyToAll;
-    @FXML
-    private Label fromMail, toMail, subjectMail, messageMail;
+    private Button reply, replyToAll, inoltra, deleteReceived, deleteSent;
     @FXML
     private ListView<Email> listViewReceived, listViewSent;
     @FXML
@@ -70,14 +65,14 @@ public class Client {
         scheduledExecutor.scheduleAtFixedRate(this::loadEmails, 0, 2, TimeUnit.MINUTES);
         listViewReceived.setItems(emailsReceived);
         listViewSent.setItems(emailsSent);
-        listViewReceived.setCellFactory(emailListView -> new CustomCell());
-        listViewSent.setCellFactory(emailListView -> new CustomCell());
+        listViewReceived.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent));
+        listViewSent.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent));
 
         // Display selected mail on list selection
         ChangeListener<Email> selectedChangeListener = new ChangeListener<Email>() {
             @Override
             public void changed(ObservableValue<? extends Email> observable, Email oldValue, Email newValue) {
-                if(newValue != null) {
+                if (newValue != null) {
                     subjectMail.setText(newValue.getObject());
                     messageMail.setText(newValue.getText());
                     fromMail.setText(newValue.getFrom());
@@ -93,6 +88,15 @@ public class Client {
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override
             public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
+                if (readMailContainer.isVisible())
+                    unselectedMail();
+                if (tabPane.getSelectionModel().getSelectedIndex() == 1) {
+                    reply.setVisible(false);
+                    replyToAll.setVisible(false);
+                } else {
+                    reply.setVisible(true);
+                    replyToAll.setVisible(true);
+                }
                 clearListsSelection();
             }
         });
@@ -144,7 +148,8 @@ public class Client {
         }).start();
     }
 
-    private void deleteEmail() {
+    @FXML
+    private void deleteEmails() {
         new Thread(() -> {
             Socket socket = null;
             try {
@@ -156,6 +161,8 @@ public class Client {
                 if (obj != null && obj.getClass().equals(Request.class)) {
                     System.out.println("Emails deleted");
                     user.clearIdsToDelete();
+                    deleteSent.setDisable(true);
+                    deleteReceived.setDisable(true);
                 }
             } catch (IOException e) {
                 System.out.println("Connection Error");
@@ -184,19 +191,20 @@ public class Client {
 
         if (source.equals(reply)) {
             to.setText(fromMailText);
-        } else if (source.equals(replyToAll)) { //TODO: fix bug
-            toMailText.replace(user.getMail(), fromMailText);
+        } else if (source.equals(replyToAll)) {
+            toMailText = toMailText.replace(user.getMail(), fromMailText);
             to.setText(toMailText);
         } else {
             to.setText("");
         }
         subject.setText(subjectMailText);
         message.setText(messageMailText);
-        newMail();
+        newMail(true);
     }
 
     @FXML
     public void sendMail() {
+        // TODO:Check duplicates and avoid to send email to yourself
         String[] emails = to.getText().toLowerCase().split(",");
         Pattern pattern = Pattern.compile("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$");
 
@@ -237,7 +245,7 @@ public class Client {
                             int mailId = (Integer) obj;
                             email.setId(mailId);
                             //Add this email to Inviati List (run on FX thread)
-                            Platform.runLater(new Runnable(){
+                            Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
                                     emailsSent.add(email);
@@ -270,9 +278,16 @@ public class Client {
     @FXML
     public void newMail() {
         clearListsSelection();
-        newMailContainer.setVisible(true);
-        readMailContainer.setVisible(false);
-        unselectedMailContainer.setVisible(false);
+        clearFields();
+        newMail(true);
+    }
+
+    public void newMail(boolean replay) {
+        if (replay) {
+            newMailContainer.setVisible(true);
+            readMailContainer.setVisible(false);
+            unselectedMailContainer.setVisible(false);
+        }
     }
 
     public void readMail() {
@@ -287,8 +302,13 @@ public class Client {
         unselectedMailContainer.setVisible(true);
     }
 
-    private void clearListsSelection()
-    {
+    private void clearFields() {
+        to.setText("");
+        subject.setText("");
+        message.setText("");
+    }
+
+    private void clearListsSelection() {
         listViewReceived.getSelectionModel().clearSelection();
         listViewSent.getSelectionModel().clearSelection();
     }

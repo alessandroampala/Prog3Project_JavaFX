@@ -1,18 +1,25 @@
 package client;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import mail.Email;
+import mail.User;
 
 import java.io.IOException;
 
 public class CustomCell extends ListCell<Email> {
 
     private FXMLLoader fxmlLoader;
+    private User user;
+    private Button deleteBtnReceived, deleteBtnSent;
 
     @FXML
     private Label titleLabel;
@@ -24,6 +31,14 @@ public class CustomCell extends ListCell<Email> {
     private Label dateLabel;
     @FXML
     private AnchorPane anchorPane;
+    @FXML
+    private CheckBox checkToDelete;
+
+    public CustomCell(User user, Button deleteBtnReceived, Button deleteBtnSent) {
+        this.user = user;
+        this.deleteBtnReceived = deleteBtnReceived;
+        this.deleteBtnSent = deleteBtnSent;
+    }
 
     @Override
     protected void updateItem(Email email, boolean empty) {
@@ -49,6 +64,24 @@ public class CustomCell extends ListCell<Email> {
             previewLabel.setText(email.getText());
             fromLabel.setText(email.getFrom());
             dateLabel.setText(email.getDate().toString());
+
+            checkToDelete.selectedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    if (checkToDelete.isSelected()) {
+                        user.addIdsToDelete(email.getId());
+                    } else {
+                        user.removeIdsToDelete(email.getId());
+                    }
+                    if (user.getIdsToDelete().size() > 0) {
+                        deleteBtnReceived.setDisable(false);
+                        deleteBtnSent.setDisable(false);
+                    } else {
+                        deleteBtnReceived.setDisable(true);
+                        deleteBtnSent.setDisable(true);
+                    }
+                }
+            });
 
             setText(null);
             setGraphic(anchorPane);
