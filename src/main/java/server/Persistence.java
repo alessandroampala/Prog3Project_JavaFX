@@ -1,6 +1,7 @@
 package server;
 
 import mail.Email;
+import mail.User;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -73,6 +74,19 @@ public class Persistence {
                 }
             }
         }
+    }
+
+    public static List<User> loadUsers() {
+        List<User> users = new ArrayList<>();
+        if (!new File(folderName).exists()) {
+            return null;
+        }
+        File[] files = new File(folderName).listFiles();
+        for (File file : files) {
+            users.add(new User(file.getName()));
+        }
+        System.out.println(users.size());
+        return users;
     }
 
     public static void deleteEmail(String name, int id) {

@@ -1,30 +1,27 @@
 package client;
 
-import com.jfoenix.controls.JFXSnackbar;
-import com.jfoenix.controls.JFXSnackbarLayout;
-import com.jfoenix.controls.JFXTextArea;
-import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
+import javafx.stage.Stage;
 import mail.Email;
 import mail.Request;
 import mail.User;
-import server.RequestHandler;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +33,7 @@ public class Client {
 
     private User user;
     private List<Email> emailsSent, emailsReceived;
+    private ScheduledExecutorService scheduledExecutor = null;
 
     @FXML
     private Label username, fromNewMail;
@@ -47,22 +45,26 @@ public class Client {
     private TextField to, subject;
     @FXML
     private TextArea message;
+    @FXML
+    private Button reply, replyToAll;
+    @FXML
+    private Label fromMail, toMail, subjectMail, messageMail;
 
     @FXML
-    public void initialize() {
-        username.setText("gatto@gatto.com");
-        fromNewMail.setText("gatto@gatto.com");
-        user = new User("gatto@gatto.com");
+    public void exitApplication() {
+        if (scheduledExecutor != null)
+            scheduledExecutor.shutdownNow();
+        Platform.exit();
+    }
+
+    public void initializeClient(User user) {
+        this.user = user;
+        username.setText(user.getMail());
+        fromNewMail.setText(user.getMail());
         emailsSent = new ArrayList<>();
         emailsReceived = new ArrayList<>();
-        ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutor.scheduleAtFixedRate(new Thread() {
-            @Override
-            public void run() {
-                loadEmails();
-            }
-        }, 0, 2, TimeUnit.MINUTES);
-        //TODO: stop executor thread when exiting app
+        scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+        scheduledExecutor.scheduleAtFixedRate(new Thread(this::loadEmails), 0, 2, TimeUnit.MINUTES);
     }
 
     private void loadEmails() {
@@ -76,27 +78,23 @@ public class Client {
                 Object obj = in.readObject();
                 if (obj != null && obj.getClass().equals(Request.class)) {
                     Request received = (Request) obj;
-                    switch (received.getType()) {
-                        case "OK":
-                            System.out.println("Got emails");
-                            obj = received.getData();
-                            System.out.println(Email.class);
-                            if (obj != null && obj.getClass().equals(Email.class)) {
-                                List<Email> emails = (List<Email>) obj;
-                                Collections.sort(emails);
-                                for (Email email : emails) {
-                                    if (email.getFrom().equals(username.getText()))
-                                        emailsReceived.add(email);
-                                    else
-                                        emailsSent.add(email);
-                                }
-                                user.setLastId(emails.get(0).getId() + 1);
-                                //TODO: add this emails to List
+                    if ("OK".equals(received.getType())) {
+                        System.out.println("Got emails");
+                        obj = received.getData();
+                        if (obj != null) {
+                            List<Email> emails = (List<Email>) obj;
+                            Collections.sort(emails);
+                            for (Email email : emails) {
+                                if (email.getFrom().equals(username.getText()))
+                                    emailsReceived.add(email);
+                                else
+                                    emailsSent.add(email);
                             }
-                            break;
-                        default:
-                            System.out.println(received.getType());
-                            break;
+                            user.setLastId(emails.get(0).getId() + 1);
+                            //TODO: add this emails to List
+                        }
+                    } else {
+                        System.out.println(received.getType());
                     }
                 }
 
@@ -153,8 +151,30 @@ public class Client {
     }
 
     @FXML
+    public void replyActionEvent(ActionEvent event) {
+        Object source = event.getSource();
+
+        String fromMailText = fromMail.getText();
+        String toMailText = toMail.getText();
+        String subjectMailText = subjectMail.getText();
+        String messageMailText = messageMail.getText();
+
+        if (source.equals(reply)) {
+            to.setText(fromMailText);
+        } else if (source.equals(replyToAll)) {
+            toMailText.replace(username.getText(), fromMailText);
+            to.setText(toMailText);
+        } else {
+            to.setText("");
+        }
+        subject.setText(subjectMailText);
+        message.setText(messageMailText);
+        newMail();
+    }
+
+    @FXML
     public void sendMail() {
-        String[] emails = to.getText().split(",");
+        String[] emails = to.getText().toLowerCase().split(",");
         Pattern pattern = Pattern.compile("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$");
 
         if (emails.length == 0) {
@@ -187,20 +207,17 @@ public class Client {
                 Object obj = in.readObject();
                 if (obj != null && obj.getClass().equals(Request.class)) {
                     Request received = (Request) obj;
-                    switch (received.getType()) {
-                        case "OK":
-                            System.out.println("Email sent");
-                            obj = received.getData();
-                            if (obj != null && obj.getClass().equals(Integer.class)) {
-                                int mailId = (Integer) obj;
-                                email.setId(mailId);
-                                //TODO: add this email to Inviati List
+                    if ("OK".equals(received.getType())) {
+                        System.out.println("Email sent");
+                        obj = received.getData();
+                        if (obj != null && obj.getClass().equals(Integer.class)) {
+                            int mailId = (Integer) obj;
+                            email.setId(mailId);
+                            //TODO: add this email to Inviati List
 
-                            }
-                            break;
-                        default:
-                            System.out.println(received.getType());
-                            break;
+                        }
+                    } else {
+                        System.out.println(received.getType());
                     }
                 }
 
@@ -219,39 +236,6 @@ public class Client {
             }
         }).start();
     }
-
-    /*private void sendRequest(Request send) {
-        new Thread(() -> {
-            Socket socket = null;
-            try {
-                socket = new Socket(ADDRESS, PORT);
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
-                outStream.writeObject(send);
-                receivedRequest((Request) in.readObject());
-            } catch (IOException e) {
-                System.out.println("Connection Error");
-            } catch (ClassNotFoundException e) {
-                System.out.println("Class not found");
-            } finally {
-                if (socket != null) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        System.out.println("Error during socket disconnection");
-                    }
-                }
-            }
-        }).start();
-    }
-
-    private void receivedRequest(Request received) {
-        switch (received.getType()) {
-            case "Send email":
-                System.out.println("Email sent");
-                break;
-        }
-    }*/
 
     public void readMail() {
         newMailContainer.setVisible(false);

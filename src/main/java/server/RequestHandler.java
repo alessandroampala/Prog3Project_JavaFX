@@ -65,6 +65,13 @@ public class RequestHandler implements Runnable {
                             outStream.writeObject(new Request("OK", null));
                         }
                         break;
+                    case "Load users":
+                        List<User> users = Persistence.loadUsers();
+                        if (!users.isEmpty())
+                            outStream.writeObject(new Request("OK", users));
+                        else
+                            outStream.writeObject(new Request("Non ci sono utenti", null));
+                        break;
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

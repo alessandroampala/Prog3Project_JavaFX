@@ -10,8 +10,15 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("client.fxml"));
-        primaryStage.setTitle("Mail");
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+        Parent root = loader.load();
+        primaryStage.setTitle("Login");
+        primaryStage.setMinWidth(300);
+        primaryStage.setMinHeight(200);
+        primaryStage.setWidth(300);
+        primaryStage.setHeight(200);
+        primaryStage.setMaxWidth(300);
+        primaryStage.setMaxHeight(200);
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
