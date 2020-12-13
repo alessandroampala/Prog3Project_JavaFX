@@ -67,24 +67,11 @@ public class Client {
         username.setText(user.getMail());
         fromNewMail.setText(user.getMail());
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutor.scheduleAtFixedRate(new Thread(this::loadEmails), 0, 2, TimeUnit.MINUTES);
+        scheduledExecutor.scheduleAtFixedRate(this::loadEmails, 0, 2, TimeUnit.MINUTES);
         listViewReceived.setItems(emailsReceived);
         listViewSent.setItems(emailsSent);
-
-        //Create cell with associated email information
-        listViewReceived.setCellFactory(param -> new ListCell<Email>() {
-            @Override
-            protected void updateItem(Email email, boolean empty) {
-                super.updateItem(email, empty);
-
-                if (empty || email == null) {
-                    setText(null);
-                } else {
-                    setText(email.getObject());
-                }
-            }
-        });
-        listViewSent.setCellFactory(listViewReceived.getCellFactory());
+        listViewReceived.setCellFactory(emailListView -> new CustomCell());
+        listViewSent.setCellFactory(emailListView -> new CustomCell());
 
         // Display selected mail on list selection
         ChangeListener<Email> selectedChangeListener = new ChangeListener<Email>() {
@@ -135,7 +122,6 @@ public class Client {
                                     emailsReceived.add(email);
                             }
                             user.setLastId(emails.get(0).getId() + 1);
-                            //TODO: add this emails to List
                         }
                     } else {
                         System.out.println(received.getType());
@@ -198,7 +184,7 @@ public class Client {
 
         if (source.equals(reply)) {
             to.setText(fromMailText);
-        } else if (source.equals(replyToAll)) {
+        } else if (source.equals(replyToAll)) { //TODO: fix bug
             toMailText.replace(user.getMail(), fromMailText);
             to.setText(toMailText);
         } else {
