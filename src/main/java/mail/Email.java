@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.List;
 
 public class Email implements Serializable, Comparable<Email> {
+    // Useful for having the same serialVersionUID both on client and server
+    private static final long serialVersionUID = 5748049580470856805L;
+
     private int id;
     private final String from;
     private final List<String> to;

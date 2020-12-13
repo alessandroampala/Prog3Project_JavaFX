@@ -1,9 +1,12 @@
 package mail;
 
+import com.sun.prism.Image;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class User {
+public class User implements Serializable {
     private String mail;
     private int lastId = 0;
     private List<Integer> idsToDelete = new ArrayList<>();

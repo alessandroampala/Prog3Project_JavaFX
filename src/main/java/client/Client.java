@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXSnackbar;
 import com.jfoenix.controls.JFXSnackbarLayout;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -54,13 +55,14 @@ public class Client {
         user = new User("gatto@gatto.com");
         emailsSent = new ArrayList<>();
         emailsReceived = new ArrayList<>();
-        ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
-        exec.scheduleAtFixedRate(new Runnable() {
+        ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+        scheduledExecutor.scheduleAtFixedRate(new Thread() {
             @Override
             public void run() {
                 loadEmails();
             }
         }, 0, 2, TimeUnit.MINUTES);
+        //TODO: stop executor thread when exiting app
     }
 
     private void loadEmails() {
@@ -78,7 +80,8 @@ public class Client {
                         case "OK":
                             System.out.println("Got emails");
                             obj = received.getData();
-                            if (obj != null && obj.getClass().getComponentType().equals(Email.class)) {
+                            System.out.println(Email.class);
+                            if (obj != null && obj.getClass().equals(Email.class)) {
                                 List<Email> emails = (List<Email>) obj;
                                 Collections.sort(emails);
                                 for (Email email : emails) {
