@@ -10,17 +10,11 @@ import java.util.List;
 public class Persistence {
     private static final String folderName = System.getProperty("user.dir") + "/" + "saves";
 
-    public static void prepareDir(String name) {
+    public static int prepareDir(String name) {
         File dir = new File(folderName + "/" + name);
         if (!dir.exists())
-            dir.mkdirs();
-    }
-
-    public static boolean addressesExist(List<String> addresses) {
-        for (String address : addresses)
-            if (!addressExists(address))
-                return false;
-        return true;
+            return -1;
+        return 0;
     }
 
     public static boolean addressExists(String address) {
@@ -32,7 +26,7 @@ public class Persistence {
 
     public static synchronized int saveEmail(String name, Email data) {
         assert data != null;
-        prepareDir(name);
+        if (prepareDir(name) == -1) return -1;
         FileOutputStream fout = null;
         int id = -1;
         try {

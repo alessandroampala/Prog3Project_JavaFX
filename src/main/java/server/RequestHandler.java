@@ -4,10 +4,13 @@ import mail.Email;
 import mail.Request;
 import mail.User;
 
+import javax.swing.text.html.ListView;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -38,17 +41,24 @@ public class RequestHandler implements Runnable {
                         if (obj != null && obj.getClass().equals(Email.class)) {
                             Email email = (Email) obj;
                             List<String> addresses = email.getTo();
+                            List<String> inexistentAddresses = new ArrayList<>();
                             addresses.forEach(s -> System.out.println(s));
-                            if (Persistence.addressExists(email.getFrom()) && Persistence.addressesExist(addresses)) {
+                            if (Persistence.addressExists(email.getFrom())) {
                                 this.server.addLog(new Date() + " " + "From: " + email.getFrom() + " Message: Emails sent");
                                 int mailId = Persistence.saveEmail(email.getFrom(), email);
                                 email.setIsSent(false);
                                 for (String address : addresses)
-                                    Persistence.saveEmail(address, email);
+                                    if (Persistence.saveEmail(address, email) == -1)
+                                        inexistentAddresses.add(address);
+                                if (!inexistentAddresses.isEmpty()) {
+                                    Persistence.saveEmail(email.getFrom(), new Email(-1, "No-reply@localhost.com", Collections.singletonList(email.getFrom()), "ERROR SENDING EMAIL", "SUBJECT: " + email.getObject() + "\n\nMESSAGE: " + email.getText() + "\n\nDATE: " + email.getDate() + "\n\nThe following emails don't exist: " + inexistentAddresses.toString(), new Date(), false));
+                                    outStream.writeObject(new Request("ERRORE in uno o più indirizzi email di destinazione", null));
+                                    this.server.addLog(new Date() + " " + "From: " + addresses + " Message: ERRORE in uno o più indirizzi email di destinazione");
+                                }
                                 outStream.writeObject(new Request("OK", mailId)); //send back mailId
                             } else {
-                                outStream.writeObject(new Request("ERRORE negli indirizzi di destinazione", null)); //send back mailId
-                                this.server.addLog(new Date() + " " + "From: " + addresses + " Message: ERRORE negli indirizzi di destinazione");
+                                outStream.writeObject(new Request("ERRORE nell'indirizzo del mittente", null)); //send back mailId
+                                this.server.addLog(new Date() + " " + "From: " + addresses + " Message: ERRORE nell'indirizzo del mittente");
                             }
                         } else
                             this.server.addLog(new Date() + " " + "Message: Data not received");

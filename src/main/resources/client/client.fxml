@@ -189,8 +189,8 @@
                                     </HBox>
                                             </children>
                                         </GridPane>
-                                        <Label fx:id="subjectMail" text="titolo" />
-                                        <Label fx:id="messageMail" text="Contenuto della mail" />
+                                        <Label wrapText="true" fx:id="subjectMail" text="titolo" />
+                                        <Label wrapText="true" fx:id="messageMail" text="Contenuto della mail" />
                                     </children>
                                 </VBox>
                                 <VBox fx:id="newMailContainer" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
