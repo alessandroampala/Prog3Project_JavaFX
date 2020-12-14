@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import mail.Email;
 import mail.Request;
 import mail.User;
@@ -133,19 +134,59 @@ public class Client {
                         }
                     } else {
                         System.out.println(received.getType());
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    new Toast(received.getType(), true).start();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     }
                 }
 
             } catch (IOException e) {
                 System.out.println("Connection Error");
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            new Toast("Connection Error", true).start();
+                        } catch (Exception e2) {
+                            e2.printStackTrace();
+                        }
+                    }
+                });
             } catch (ClassNotFoundException e) {
                 System.out.println("Class not found");
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            new Toast("Class not found", true).start();
+                        } catch (Exception e2) {
+                            e2.printStackTrace();
+                        }
+                    }
+                });
             } finally {
                 if (socket != null) {
                     try {
                         socket.close();
                     } catch (IOException e) {
                         System.out.println("Error during socket disconnection");
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    new Toast("Error during socket disconnection", true).start();
+                                } catch (Exception e2) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     }
                 }
             }
@@ -163,30 +204,72 @@ public class Client {
                 outStream.writeObject(new Request("Delete emails", user));
                 Object obj = in.readObject();
                 if (obj != null && obj.getClass().equals(Request.class)) {
-                    System.out.println("Emails deleted");
-                    //Remove mails from list
-                    user.getIdsToDelete().forEach(id -> {
-                        Platform.runLater(() -> {
-                            emailsSent.removeIf(email -> id == email.getId());
-                            emailsReceived.removeIf(email -> id == email.getId());
+                    if (((Request) obj).getType().equals("OK")) {
+                        System.out.println("Emails deleted");
+                        //Remove mails from list
+                        user.getIdsToDelete().forEach(id -> {
+                            Platform.runLater(() -> {
+                                emailsSent.removeIf(email -> id == email.getId());
+                                emailsReceived.removeIf(email -> id == email.getId());
+                            });
                         });
-                    });
 
-                    user.clearIdsToDelete();
-                    deleteSent.setDisable(true);
-                    deleteReceived.setDisable(true);
-
+                        user.clearIdsToDelete();
+                        deleteSent.setDisable(true);
+                        deleteReceived.setDisable(true);
+                    } else {
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    new Toast(((Request) obj).getType(), true).start();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
                 }
             } catch (IOException e) {
                 System.out.println("Connection Error");
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            new Toast("Connection Error", true).start();
+                        } catch (Exception e2) {
+                            e2.printStackTrace();
+                        }
+                    }
+                });
             } catch (ClassNotFoundException e) {
                 System.out.println("Class not found");
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            new Toast("Class not found", true).start();
+                        } catch (Exception e2) {
+                            e2.printStackTrace();
+                        }
+                    }
+                });
             } finally {
                 if (socket != null) {
                     try {
                         socket.close();
                     } catch (IOException e) {
                         System.out.println("Error during socket disconnection");
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    new Toast("Error during socket disconnection", true).start();
+                                } catch (Exception e2) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     }
                 }
             }
@@ -223,20 +306,40 @@ public class Client {
 
         if (emails.length == 0) {
             System.out.println("email");
+            try {
+                new Toast("Please insert an email in the field", true).start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return;
         }
 
         for (String email : emails)
             if (email.trim().isBlank() || !pattern.matcher(email.trim()).matches()) {
                 System.out.println("email");
+                try {
+                    new Toast("Please correct emails format", true).start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return;
             }
 
         if (subject.getText().isBlank()) {
             System.out.println("subject");
+            try {
+                new Toast("Please insert a subject", true).start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return;
         } else if (message.getText().isBlank()) {
             System.out.println("message");
+            try {
+                new Toast("Please insert a message", true).start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return;
         }
 
@@ -266,6 +369,11 @@ public class Client {
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
+                                    try {
+                                        new Toast("Email sent", false).start();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                     if (Arrays.asList(emails).contains(fromNewMail.getText()))
                                         //TODO:add to received
                                         System.out.println("");
@@ -277,19 +385,59 @@ public class Client {
                         }
                     } else {
                         System.out.println(received.getType());
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    new Toast(received.getType(), true).start();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     }
                 }
 
             } catch (IOException e) {
                 System.out.println("Connection Error");
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            new Toast("Connection Error", true).start();
+                        } catch (Exception e2) {
+                            e2.printStackTrace();
+                        }
+                    }
+                });
             } catch (ClassNotFoundException e) {
                 System.out.println("Class not found");
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            new Toast("Class not found", true).start();
+                        } catch (Exception e2) {
+                            e2.printStackTrace();
+                        }
+                    }
+                });
             } finally {
                 if (socket != null) {
                     try {
                         socket.close();
                     } catch (IOException e) {
                         System.out.println("Error during socket disconnection");
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    new Toast("Error during socket disconnection", true).start();
+                                } catch (Exception e2) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     }
                 }
             }
