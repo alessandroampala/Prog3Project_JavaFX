@@ -33,8 +33,9 @@ public class Server {
 
     @FXML
     public void initialize() throws IOException, ClassNotFoundException {
-        ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(System.getProperty("user.dir") + "/" + "saves/log")));;
+        ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(System.getProperty("user.dir") + "/" + "saves/log")));
         Object o = ois.readObject();
+        ois.close();
         if (o != null)
             observableList = FXCollections.observableArrayList((ArrayList<String>) o);
         else
@@ -75,11 +76,21 @@ public class Server {
 
     @FXML
     public void exitApplication() {
+        ObjectOutputStream oos = null;
         try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/" + "saves/log"));
+            oos = new ObjectOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/" + "saves/log", false));
             oos.writeObject(new ArrayList<>(observableList));
+            oos.flush();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (oos != null) {
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         Platform.exit();
     }
