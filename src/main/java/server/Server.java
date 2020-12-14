@@ -27,12 +27,13 @@ public class Server {
     private static final int MAX_TREAHDS_NUM = 10;
 
     private ObservableList<String> observableList;
+    private ExecutorService executor = null;
 
     @FXML
     private ListView<String> logs;
 
     @FXML
-    public void initialize() throws IOException, ClassNotFoundException {
+    public void initialize() {
         observableList = FXCollections.observableArrayList();
         logs.setItems(observableList);
         this.addLog(new Date() + " " + "SERVER STARTUP");
@@ -47,7 +48,7 @@ public class Server {
         Thread thread = new Thread(() -> {
             try {
                 ServerSocket serverSocket = new ServerSocket(PORT);
-                ExecutorService executor = Executors.newFixedThreadPool(MAX_TREAHDS_NUM);
+                executor = Executors.newFixedThreadPool(MAX_TREAHDS_NUM);
 
                 while (true) {
                     Socket s = serverSocket.accept();
@@ -86,6 +87,8 @@ public class Server {
                 printWriter.close();
             }
         }
+        if (executor != null)
+            executor.shutdownNow();
         Platform.exit();
     }
 
