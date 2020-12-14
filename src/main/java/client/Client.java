@@ -207,16 +207,29 @@ public class Client {
                     if (((Request) obj).getType().equals("OK")) {
                         System.out.println("Emails deleted");
                         //Remove mails from list
-                        user.getIdsToDelete().forEach(id -> {
-                            Platform.runLater(() -> {
+                        Platform.runLater(() -> {
+                            user.getIdsToDelete().forEach(id -> {
                                 emailsSent.removeIf(email -> id == email.getId());
                                 emailsReceived.removeIf(email -> id == email.getId());
                             });
+
+                            // Recalculate next id
+                            int newLastId = 0;
+                            if(!emailsSent.isEmpty() && !emailsReceived.isEmpty())
+                                newLastId = Math.max(
+                                        Collections.max(emailsSent, (e1, e2) -> e1.getId() - e2.getId()).getId(),
+                                        Collections.max(emailsReceived, (e1, e2) -> e1.getId() - e2.getId()).getId()) + 1;
+                            else if(!emailsSent.isEmpty())
+                                newLastId = Collections.max(emailsSent, (e1, e2) -> e1.getId() - e2.getId()).getId() + 1;
+                            else  if(!emailsReceived.isEmpty())
+                                newLastId = Collections.max(emailsReceived, (e1, e2) -> e1.getId() - e2.getId()).getId() + 1;
+                            user.setLastId(newLastId);
+
+                            user.clearIdsToDelete();
+                            deleteSent.setDisable(true);
+                            deleteReceived.setDisable(true);
                         });
 
-                        user.clearIdsToDelete();
-                        deleteSent.setDisable(true);
-                        deleteReceived.setDisable(true);
                     } else {
                         Platform.runLater(new Runnable() {
                             @Override
@@ -365,6 +378,7 @@ public class Client {
                         if (obj != null && obj.getClass().equals(Integer.class)) {
                             int mailId = (Integer) obj;
                             email.setId(mailId);
+                            user.setLastId(Math.max(user.getLastId(), email.getId() + 1));
                             //Add this email to Inviati List (run on FX thread)
                             Platform.runLater(new Runnable() {
                                 @Override

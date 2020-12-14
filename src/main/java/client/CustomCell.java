@@ -51,44 +51,47 @@ public class CustomCell extends ListCell<Email> {
             setText(null);
             setGraphic(null);
         } else {
-            if (fxmlLoader == null) {
-                fxmlLoader = new FXMLLoader(getClass().getResource("customCell.fxml"));
-                fxmlLoader.setController(this);
+            Platform.runLater(() -> {
+                if (fxmlLoader == null) {
+                    fxmlLoader = new FXMLLoader(getClass().getResource("customCell.fxml"));
+                    fxmlLoader.setController(this);
 
-                try {
-                    fxmlLoader.load();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    try {
+                        fxmlLoader.load();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                 }
 
-            }
+                titleLabel.setText(email.getObject());
+                previewLabel.setText(email.getText());
+                if(this.emailReceived)
+                    fromLabel.setText(email.getFrom());
+                else
+                    fromLabel.setText(email.getStringTo());
+                dateLabel.setText(email.getDate().toString());
 
-            titleLabel.setText(email.getObject());
-            previewLabel.setText(email.getText());
-            if(this.emailReceived)
-                fromLabel.setText(email.getFrom());
-            else
-                fromLabel.setText(email.getStringTo());
-            dateLabel.setText(email.getDate().toString());
+                checkToDelete.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue) {
+                        user.addIdsToDelete(email.getId());
+                    } else {
+                        user.removeIdsToDelete(email.getId());
+                    }
+                    if (user.getIdsToDelete().size() > 0) {
+                        deleteBtnReceived.setDisable(false);
+                        deleteBtnSent.setDisable(false);
+                    } else {
+                        deleteBtnReceived.setDisable(true);
+                        deleteBtnSent.setDisable(true);
+                    }
+                });
 
-            checkToDelete.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue) {
-                    user.addIdsToDelete(email.getId());
-                } else {
-                    user.removeIdsToDelete(email.getId());
-                }
-                if (user.getIdsToDelete().size() > 0) {
-                    deleteBtnReceived.setDisable(false);
-                    deleteBtnSent.setDisable(false);
-                } else {
-                    deleteBtnReceived.setDisable(true);
-                    deleteBtnSent.setDisable(true);
-                }
+                setText(null);
+
+                setGraphic(anchorPane);
             });
 
-            setText(null);
-
-            Platform.runLater(() -> setGraphic(anchorPane));
         }
 
     }
