@@ -1,5 +1,6 @@
 package client;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -20,6 +21,7 @@ public class CustomCell extends ListCell<Email> {
     private FXMLLoader fxmlLoader;
     private User user;
     private Button deleteBtnReceived, deleteBtnSent;
+    private boolean emailReceived;
 
     @FXML
     private Label titleLabel;
@@ -34,10 +36,11 @@ public class CustomCell extends ListCell<Email> {
     @FXML
     private CheckBox checkToDelete;
 
-    public CustomCell(User user, Button deleteBtnReceived, Button deleteBtnSent) {
+    public CustomCell(User user, Button deleteBtnReceived, Button deleteBtnSent, boolean emailReceived) {
         this.user = user;
         this.deleteBtnReceived = deleteBtnReceived;
         this.deleteBtnSent = deleteBtnSent;
+        this.emailReceived = emailReceived;
     }
 
     @Override
@@ -62,7 +65,10 @@ public class CustomCell extends ListCell<Email> {
 
             titleLabel.setText(email.getObject());
             previewLabel.setText(email.getText());
-            fromLabel.setText(email.getFrom());
+            if(this.emailReceived)
+                fromLabel.setText(email.getFrom());
+            else
+                fromLabel.setText(email.getStringTo());
             dateLabel.setText(email.getDate().toString());
 
             checkToDelete.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -81,7 +87,8 @@ public class CustomCell extends ListCell<Email> {
             });
 
             setText(null);
-            setGraphic(anchorPane);
+
+            Platform.runLater(() -> setGraphic(anchorPane));
         }
 
     }

@@ -18,7 +18,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -65,8 +68,8 @@ public class Client {
         scheduledExecutor.scheduleAtFixedRate(this::loadEmails, 0, 2, TimeUnit.MINUTES);
         listViewReceived.setItems(emailsReceived);
         listViewSent.setItems(emailsSent);
-        listViewReceived.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent));
-        listViewSent.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent));
+        listViewReceived.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent, true));
+        listViewSent.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent, false));
 
         // Display selected mail on list selection
         ChangeListener<Email> selectedChangeListener = new ChangeListener<Email>() {
@@ -100,6 +103,7 @@ public class Client {
                 clearListsSelection();
             }
         });
+
     }
 
     private void loadEmails() {
@@ -160,9 +164,16 @@ public class Client {
                 Object obj = in.readObject();
                 if (obj != null && obj.getClass().equals(Request.class)) {
                     System.out.println("Emails deleted");
+                    //Remove mails from list
+                    user.getIdsToDelete().forEach(id -> {
+                        emailsSent.removeIf(email -> id == email.getId());
+                        emailsReceived.removeIf(email -> id == email.getId());
+                    });
+
                     user.clearIdsToDelete();
                     deleteSent.setDisable(true);
                     deleteReceived.setDisable(true);
+
                 }
             } catch (IOException e) {
                 System.out.println("Connection Error");
@@ -226,6 +237,11 @@ public class Client {
             System.out.println("message");
             return;
         }
+
+        // Remove spaces from all emails
+        for (int i = 0; i < emails.length; i++)
+            emails[i] = emails[i].trim();
+
         Email email = new Email(-1, username.getText(), Arrays.asList(emails), subject.getText(), message.getText(), new Date(), true);
         Request send = new Request("Send email", email);
         new Thread(() -> {
@@ -315,4 +331,5 @@ public class Client {
         listViewReceived.getSelectionModel().clearSelection();
         listViewSent.getSelectionModel().clearSelection();
     }
+
 }

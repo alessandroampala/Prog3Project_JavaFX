@@ -33,14 +33,9 @@ public class Server {
 
     @FXML
     public void initialize() throws IOException, ClassNotFoundException {
-        ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(System.getProperty("user.dir") + "/" + "saves/log")));
-        Object o = ois.readObject();
-        ois.close();
-        if (o != null)
-            observableList = FXCollections.observableArrayList((ArrayList<String>) o);
-        else
-            observableList = FXCollections.observableArrayList();
+        observableList = FXCollections.observableArrayList();
         logs.setItems(observableList);
+        this.addLog(new Date() + " " + "SERVER STARTUP");
         new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -70,28 +65,29 @@ public class Server {
 
     void addLog(String log) {
         synchronized (observableList) {
-            observableList.add(log);
+            Platform.runLater(() -> observableList.add(log));
+
         }
     }
 
     @FXML
     public void exitApplication() {
         ObjectOutputStream oos = null;
+        PrintWriter printWriter = null;
         try {
-            oos = new ObjectOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/" + "saves/log", false));
-            oos.writeObject(new ArrayList<>(observableList));
-            oos.flush();
+            this.addLog(new Date() + " " + "SERVER SHUTDOWN");
+            printWriter = new PrintWriter(new FileOutputStream(new File(System.getProperty("user.dir") + "/" + "saves/log.txt"), true));
+            observableList.forEach(printWriter::println); //print each string as a line in the file
+            printWriter.flush();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (oos != null) {
-                try {
-                    oos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if (printWriter != null) {
+                printWriter.close();
             }
         }
         Platform.exit();
     }
+
+    //TODO: add bug when exiting server
 }

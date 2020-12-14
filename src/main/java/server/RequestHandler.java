@@ -38,8 +38,9 @@ public class RequestHandler implements Runnable {
                         if (obj != null && obj.getClass().equals(Email.class)) {
                             Email email = (Email) obj;
                             List<String> addresses = email.getTo();
+                            addresses.forEach(s -> System.out.println(s));
                             if (Persistence.addressExists(email.getFrom()) && Persistence.addressesExist(addresses)) {
-                                this.server.addLog(new Date() + " " + "From: " + addresses + " Message: Emails sent");
+                                this.server.addLog(new Date() + " " + "From: " + email.getFrom() + " Message: Emails sent");
                                 int mailId = Persistence.saveEmail(email.getFrom(), email);
                                 email.setIsSent(false);
                                 for (String address : addresses)

@@ -10,7 +10,7 @@ import java.util.List;
 public class Persistence {
     private static final String folderName = System.getProperty("user.dir") + "/" + "saves";
 
-    private static void prepareDir(String name) {
+    public static void prepareDir(String name) {
         File dir = new File(folderName + "/" + name);
         if (!dir.exists())
             dir.mkdirs();
@@ -92,6 +92,7 @@ public class Persistence {
         for (File file : files) {
             users.add(new User(file.getName()));
         }
+        users.removeIf(user -> user.getMail().equals("log.txt")); // Removes log entry if exists
         return users;
     }
 
