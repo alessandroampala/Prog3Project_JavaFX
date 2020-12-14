@@ -166,8 +166,10 @@ public class Client {
                     System.out.println("Emails deleted");
                     //Remove mails from list
                     user.getIdsToDelete().forEach(id -> {
-                        emailsSent.removeIf(email -> id == email.getId());
-                        emailsReceived.removeIf(email -> id == email.getId());
+                        Platform.runLater(() -> {
+                            emailsSent.removeIf(email -> id == email.getId());
+                            emailsReceived.removeIf(email -> id == email.getId());
+                        });
                     });
 
                     user.clearIdsToDelete();
