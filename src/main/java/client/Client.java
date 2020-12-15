@@ -226,6 +226,7 @@ public class Client {
                             user.setLastId(newLastId);
 
                             user.clearIdsToDelete();
+                            clearListsSelection();
                             deleteSent.setDisable(true);
                             deleteReceived.setDisable(true);
                         });
