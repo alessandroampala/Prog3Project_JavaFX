@@ -66,6 +66,7 @@ public class CustomCell extends ListCell<Email> {
 
                 titleLabel.setText(email.getObject());
                 previewLabel.setText(email.getText());
+                checkToDelete.setSelected(false);
                 if (this.emailReceived)
                     fromLabel.setText(email.getFrom());
                 else

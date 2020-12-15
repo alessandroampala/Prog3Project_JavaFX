@@ -45,7 +45,7 @@ public class Client {
     @FXML
     private TextArea message;
     @FXML
-    private Button reply, replyToAll, inoltra, deleteReceived, deleteSent;
+    private Button reply, replyToAll, deleteReceived, deleteSent;
     @FXML
     private ListView<Email> listViewReceived, listViewSent;
     @FXML
@@ -223,7 +223,6 @@ public class Client {
                             user.setLastId(newLastId);
 
                             user.clearIdsToDelete();
-                            clearListsSelection();
                             deleteSent.setDisable(true);
                             deleteReceived.setDisable(true);
                         });
