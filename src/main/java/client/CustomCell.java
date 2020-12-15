@@ -10,6 +10,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import mail.Email;
 import mail.User;
@@ -32,9 +33,7 @@ public class CustomCell extends ListCell<Email> {
     @FXML
     private Label dateLabel;
     @FXML
-    private AnchorPane anchorPane;
-    @FXML
-    private CheckBox checkToDelete;
+    private GridPane gridPane;
 
     public CustomCell(User user, Button deleteBtnReceived, Button deleteBtnSent, boolean emailReceived) {
         this.user = user;
@@ -66,31 +65,15 @@ public class CustomCell extends ListCell<Email> {
 
                 titleLabel.setText(email.getObject());
                 previewLabel.setText(email.getText());
-                checkToDelete.setSelected(false);
                 if (this.emailReceived)
                     fromLabel.setText(email.getFrom());
                 else
                     fromLabel.setText(email.getStringTo());
                 dateLabel.setText(email.getDate().toString());
 
-                checkToDelete.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    if (checkToDelete.isSelected()) {
-                        user.addIdsToDelete(email.getId());
-                    } else {
-                        user.removeIdsToDelete(email.getId());
-                    }
-                    if (user.getIdsToDelete().size() > 0) {
-                        deleteBtnReceived.setDisable(false);
-                        deleteBtnSent.setDisable(false);
-                    } else {
-                        deleteBtnReceived.setDisable(true);
-                        deleteBtnSent.setDisable(true);
-                    }
-                });
-
                 setText(null);
 
-                setGraphic(anchorPane);
+                setGraphic(gridPane);
             });
 
         }

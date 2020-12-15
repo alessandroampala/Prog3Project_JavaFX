@@ -54,8 +54,8 @@ public class RequestHandler implements Runnable {
                                     Persistence.saveEmail(email.getFrom(), new Email(-1, "No-reply@localhost.com", Collections.singletonList(email.getFrom()), "ERROR SENDING EMAIL", "SUBJECT: " + email.getObject() + "\n\nMESSAGE: " + email.getText() + "\n\nDATE: " + email.getDate() + "\n\nThe following emails don't exist: " + inexistentAddresses.toString(), new Date(), false));
                                     outStream.writeObject(new Request("ERRORE in uno o più indirizzi email di destinazione", null));
                                     this.server.addLog(new Date() + " " + "From: " + addresses + " Message: ERRORE in uno o più indirizzi email di destinazione");
-                                }
-                                outStream.writeObject(new Request("OK", mailId)); //send back mailId
+                                } else
+                                    outStream.writeObject(new Request("OK", mailId)); //send back mailId
                             } else {
                                 outStream.writeObject(new Request("ERRORE nell'indirizzo del mittente", null)); //send back mailId
                                 this.server.addLog(new Date() + " " + "From: " + addresses + " Message: ERRORE nell'indirizzo del mittente");

@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import mail.Email;
 import mail.Request;
 import mail.User;
@@ -76,12 +77,22 @@ public class Client {
             @Override
             public void changed(ObservableValue<? extends Email> observable, Email oldValue, Email newValue) {
                 if (newValue != null) {
+                    deleteReceived.setDisable(false);
+                    deleteSent.setDisable(false);
+                    if (oldValue != null)
+                        user.removeIdsToDelete(oldValue.getId());
+                    user.addIdsToDelete(newValue.getId());
                     subjectMail.setText(newValue.getObject());
                     messageMail.setText(newValue.getText());
                     fromMail.setText(newValue.getFrom());
                     toMail.setText(newValue.getStringTo());
                     toToolTip.setText(newValue.getStringTo());
                     readMail();
+                } else {
+                    if (oldValue != null)
+                        user.removeIdsToDelete(oldValue.getId());
+                    deleteReceived.setDisable(false);
+                    deleteSent.setDisable(false);
                 }
             }
         };
@@ -101,6 +112,9 @@ public class Client {
                     reply.setVisible(true);
                     replyToAll.setVisible(true);
                 }
+                deleteReceived.setDisable(true);
+                deleteSent.setDisable(true);
+                user.clearIdsToDelete();
                 clearListsSelection();
             }
         });
@@ -201,6 +215,7 @@ public class Client {
                 socket = new Socket(ADDRESS, PORT);
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                 ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
+                int id = user.getIdsToDelete().get(0);
                 outStream.writeObject(new Request("Delete emails", user));
                 Object obj = in.readObject();
                 if (obj != null && obj.getClass().equals(Request.class)) {
@@ -208,10 +223,8 @@ public class Client {
                         System.out.println("Emails deleted");
                         //Remove mails from list
                         Platform.runLater(() -> {
-                            user.getIdsToDelete().forEach(id -> {
-                                emailsSent.removeIf(email -> id == email.getId());
-                                emailsReceived.removeIf(email -> id == email.getId());
-                            });
+                            emailsSent.removeIf(email -> id == email.getId());
+                            emailsReceived.removeIf(email -> id == email.getId());
 
                             // Recalculate next id
                             int newLastId = 0;
@@ -226,6 +239,9 @@ public class Client {
                             user.setLastId(newLastId);
 
                             user.clearIdsToDelete();
+                            deleteReceived.setDisable(false);
+                            deleteSent.setDisable(false);
+                            clearListsSelection();
                             deleteSent.setDisable(true);
                             deleteReceived.setDisable(true);
                         });
