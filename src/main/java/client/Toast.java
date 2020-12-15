@@ -2,6 +2,7 @@ package client;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -58,5 +59,19 @@ public class Toast {
         PauseTransition delay = new PauseTransition(Duration.seconds(3));
         delay.setOnFinished(event -> popup.close());
         delay.play();
+    }
+
+    public static void show(String content, boolean error)
+    {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new Toast(content, error).start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

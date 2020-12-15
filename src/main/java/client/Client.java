@@ -36,6 +36,7 @@ public class Client {
     private final ObservableList<Email> emailsReceived = FXCollections.observableArrayList();
     private ScheduledExecutorService scheduledExecutor = null;
     Future<?> future = null;
+    private boolean firstMailLoad = true;
 
     @FXML
     private Label username, fromNewMail, fromMail, toMail, subjectMail, messageMail;
@@ -68,7 +69,7 @@ public class Client {
         username.setText(user.getMail());
         fromNewMail.setText(user.getMail());
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        future = scheduledExecutor.scheduleAtFixedRate(this::loadEmails, 0, 2, TimeUnit.MINUTES);
+        future = scheduledExecutor.scheduleAtFixedRate(this::loadEmails, 0, 10, TimeUnit.SECONDS);
         listViewReceived.setItems(emailsReceived);
         listViewSent.setItems(emailsSent);
         listViewReceived.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent, true));
@@ -124,92 +125,58 @@ public class Client {
     }
 
     private void loadEmails() {
-        new Thread(() -> {
-            Socket socket = null;
-            try {
-                socket = new Socket(ADDRESS, PORT);
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
-                outStream.writeObject(new Request("Receive emails", user));
-                Object obj = in.readObject();
-                if (obj != null && obj.getClass().equals(Request.class)) {
-                    Request received = (Request) obj;
-                    if ("OK".equals(received.getType())) {
-                        System.out.println("Got emails");
-                        obj = received.getData();
-                        if (obj != null) {
-                            List<Email> emails = (List<Email>) obj;
-                            Collections.sort(emails);
-                            for (Email email : emails) {
-                                if (email.getIsSent())
-                                    emailsSent.add(email);
-                                else
-                                    emailsReceived.add(email);
-                            }
-                            user.setLastId(emails.get(0).getId() + 1);
-                            Collections.sort(emailsSent);
-                            Collections.sort(emailsReceived);
+        Socket socket = null;
+        try {
+            socket = new Socket(ADDRESS, PORT);
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
+            outStream.writeObject(new Request("Receive emails", user));
+            Object obj = in.readObject();
+            if (obj != null && obj.getClass().equals(Request.class)) {
+                Request received = (Request) obj;
+                if ("OK".equals(received.getType())) {
+                    System.out.println("Got emails");
+                    obj = received.getData();
+                    if (obj != null) {
+                        List<Email> emails = (List<Email>) obj;
+                        Collections.sort(emails);
+                        if (emails.size() > 0 && !firstMailLoad) {
+                            Toast.show("New messages", false);
                         }
-                    } else {
-                        System.out.println(received.getType());
-                        if (!received.getType().equals("Nessuna email trovata"))
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        new Toast(received.getType(), true).start();
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                    }
-                }
-
-            } catch (IOException e) {
-                System.out.println("Connection Error");
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            new Toast("Connection Error", true).start();
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
+                        if (firstMailLoad)
+                            firstMailLoad = false;
+                        for (Email email : emails) {
+                            if (email.getIsSent())
+                                emailsSent.add(email);
+                            else
+                                emailsReceived.add(email);
                         }
+                        user.setLastId(emails.get(0).getId() + 1);
+                        Collections.sort(emailsSent);
+                        Collections.sort(emailsReceived);
                     }
-                });
-            } catch (ClassNotFoundException e) {
-                System.out.println("Class not found");
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            new Toast("Class not found", true).start();
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-                    }
-                });
-            } finally {
-                if (socket != null) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        System.out.println("Error during socket disconnection");
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    new Toast("Error during socket disconnection", true).start();
-                                } catch (Exception e2) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                    }
+                } else {
+                    System.out.println(received.getType());
+                    if (!received.getType().equals("Nessuna email trovata"))
+                        Toast.show(received.getType(), false);
                 }
             }
-        }).start();
+
+        } catch (IOException e) {
+            System.out.println("Connection Error");
+            Toast.show("Connection Error", true);
+        } catch (ClassNotFoundException e) {
+            System.out.println("Class not found");
+            Toast.show("Class not found", true);
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    Toast.show("Error during socket disconnection", true);
+                }
+            }
+        }
     }
 
     @FXML
@@ -253,58 +220,22 @@ public class Client {
                         });
 
                     } else {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    new Toast(((Request) obj).getType(), true).start();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
+                        Toast.show(((Request) obj).getType(), true);
                     }
                 }
             } catch (IOException e) {
                 System.out.println("Connection Error");
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            new Toast("Connection Error", true).start();
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-                    }
-                });
+                Toast.show("Connection Error", true);
             } catch (ClassNotFoundException e) {
                 System.out.println("Class not found");
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            new Toast("Class not found", true).start();
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-                    }
-                });
+                Toast.show("Class not found", true);
             } finally {
                 if (socket != null) {
                     try {
                         socket.close();
                     } catch (IOException e) {
                         System.out.println("Error during socket disconnection");
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    new Toast("Error during socket disconnection", true).start();
-                                } catch (Exception e2) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
+                        Toast.show("Error during socket disconnection", true);
                     }
                 }
             }
@@ -410,7 +341,7 @@ public class Client {
                                     }
                                     if (Arrays.asList(emails).contains(fromNewMail.getText())) {
                                         future.cancel(true);
-                                        future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 2, TimeUnit.MINUTES);
+                                        future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 10, TimeUnit.SECONDS);
                                     } else {
                                         emailsSent.add(email);
                                         Collections.sort(emailsSent);
@@ -425,9 +356,9 @@ public class Client {
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
-                                if(received.getType().contains("ERRORE: indirizzi email di destinazione non esistenti:")){
+                                if (received.getType().contains("ERRORE: indirizzi email di destinazione non esistenti:")) {
                                     future.cancel(true);
-                                    future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 2, TimeUnit.MINUTES);
+                                    future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 10, TimeUnit.SECONDS);
                                 }
                                 try {
                                     new Toast(received.getType(), true).start();
@@ -441,44 +372,17 @@ public class Client {
 
             } catch (IOException e) {
                 System.out.println("Connection Error");
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            new Toast("Connection Error", true).start();
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-                    }
-                });
+                Toast.show("Connection Error", true);
             } catch (ClassNotFoundException e) {
                 System.out.println("Class not found");
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            new Toast("Class not found", true).start();
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-                    }
-                });
+                Toast.show("Class not found", true);
             } finally {
                 if (socket != null) {
                     try {
                         socket.close();
                     } catch (IOException e) {
                         System.out.println("Error during socket disconnection");
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    new Toast("Error during socket disconnection", true).start();
-                                } catch (Exception e2) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
+                        Toast.show("Error during socket disconnection", true);
                     }
                 }
             }
