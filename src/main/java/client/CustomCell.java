@@ -66,14 +66,14 @@ public class CustomCell extends ListCell<Email> {
 
                 titleLabel.setText(email.getObject());
                 previewLabel.setText(email.getText());
-                if(this.emailReceived)
+                if (this.emailReceived)
                     fromLabel.setText(email.getFrom());
                 else
                     fromLabel.setText(email.getStringTo());
                 dateLabel.setText(email.getDate().toString());
 
                 checkToDelete.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue) {
+                    if (checkToDelete.isSelected()) {
                         user.addIdsToDelete(email.getId());
                     } else {
                         user.removeIdsToDelete(email.getId());

@@ -29,18 +29,26 @@ public class User implements Serializable {
     }
 
     public List<Integer> getIdsToDelete() {
-        return idsToDelete;
+        synchronized (idsToDelete) {
+            return idsToDelete;
+        }
     }
 
     public void addIdsToDelete(int id) {
-        idsToDelete.add(id);
+        synchronized (idsToDelete) {
+            idsToDelete.add(id);
+        }
     }
 
     public void removeIdsToDelete(int id) {
-        idsToDelete.remove(Integer.valueOf(id));
+        synchronized (idsToDelete) {
+            idsToDelete.remove(Integer.valueOf(id));
+        }
     }
 
     public void clearIdsToDelete() {
-        idsToDelete.clear();
+        synchronized (idsToDelete) {
+            idsToDelete.clear();
+        }
     }
 }
