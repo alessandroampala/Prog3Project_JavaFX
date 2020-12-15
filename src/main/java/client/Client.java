@@ -22,6 +22,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -34,6 +35,7 @@ public class Client {
     private final ObservableList<Email> emailsSent = FXCollections.observableArrayList();
     private final ObservableList<Email> emailsReceived = FXCollections.observableArrayList();
     private ScheduledExecutorService scheduledExecutor = null;
+    Future<?> future = null;
 
     @FXML
     private Label username, fromNewMail, fromMail, toMail, subjectMail, messageMail;
@@ -66,7 +68,7 @@ public class Client {
         username.setText(user.getMail());
         fromNewMail.setText(user.getMail());
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutor.scheduleAtFixedRate(this::loadEmails, 0, 2, TimeUnit.MINUTES);
+        future = scheduledExecutor.scheduleAtFixedRate(this::loadEmails, 0, 2, TimeUnit.MINUTES);
         listViewReceived.setItems(emailsReceived);
         listViewSent.setItems(emailsSent);
         listViewReceived.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent, true));
@@ -80,7 +82,7 @@ public class Client {
                     deleteReceived.setDisable(false);
                     deleteSent.setDisable(false);
                     if (oldValue != null)
-                        user.removeIdsToDelete(oldValue.getId());
+                        user.clearIdsToDelete();
                     user.addIdsToDelete(newValue.getId());
                     subjectMail.setText(newValue.getObject());
                     messageMail.setText(newValue.getText());
@@ -90,9 +92,9 @@ public class Client {
                     readMail();
                 } else {
                     if (oldValue != null)
-                        user.removeIdsToDelete(oldValue.getId());
-                    deleteReceived.setDisable(false);
-                    deleteSent.setDisable(false);
+                        user.clearIdsToDelete();
+                    deleteReceived.setDisable(true);
+                    deleteSent.setDisable(true);
                 }
             }
         };
@@ -145,6 +147,8 @@ public class Client {
                                     emailsReceived.add(email);
                             }
                             user.setLastId(emails.get(0).getId() + 1);
+                            Collections.sort(emailsSent);
+                            Collections.sort(emailsReceived);
                         }
                     } else {
                         System.out.println(received.getType());
@@ -242,6 +246,7 @@ public class Client {
                             deleteReceived.setDisable(false);
                             deleteSent.setDisable(false);
                             clearListsSelection();
+                            unselectedMail();
                             deleteSent.setDisable(true);
                             deleteReceived.setDisable(true);
                         });
@@ -393,7 +398,6 @@ public class Client {
                         if (obj != null && obj.getClass().equals(Integer.class)) {
                             int mailId = (Integer) obj;
                             email.setId(mailId);
-                            user.setLastId(Math.max(user.getLastId(), email.getId() + 1));
                             //Add this email to Inviati List (run on FX thread)
                             Platform.runLater(new Runnable() {
                                 @Override
@@ -403,11 +407,14 @@ public class Client {
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
-                                    if (Arrays.asList(emails).contains(fromNewMail.getText()))
-                                        //TODO:add to received
-                                        System.out.println("");
-                                    emailsSent.add(email);
-                                    Collections.sort(emailsSent);
+                                    if (Arrays.asList(emails).contains(fromNewMail.getText())) {
+                                        future.cancel(true);
+                                        future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 2, TimeUnit.MINUTES);
+                                    } else {
+                                        emailsSent.add(email);
+                                        Collections.sort(emailsSent);
+                                        user.setLastId(Math.max(user.getLastId(), email.getId() + 1));
+                                    }
                                 }
                             });
                             unselectedMail();
