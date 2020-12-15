@@ -50,6 +50,8 @@ public class Client {
     private ListView<Email> listViewReceived, listViewSent;
     @FXML
     private TabPane tabPane;
+    @FXML
+    private Tooltip toToolTip;
 
     @FXML
     public void exitApplication() {
@@ -78,6 +80,7 @@ public class Client {
                     messageMail.setText(newValue.getText());
                     fromMail.setText(newValue.getFrom());
                     toMail.setText(newValue.getStringTo());
+                    toToolTip.setText(newValue.getStringTo());
                     readMail();
                 }
             }

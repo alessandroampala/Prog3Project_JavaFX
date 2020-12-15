@@ -137,7 +137,9 @@
                                                 <Label text="Da:" />
                                                 <Label fx:id="fromMail" text="Mail@Mail.com" GridPane.columnIndex="1" />
                                                 <Label text="A:" GridPane.rowIndex="1" />
-                                                <Label fx:id="toMail" text="Mail@Mail.com" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Label fx:id="toMail" text="Mail@Mail.com" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                    <tooltip><Tooltip fx:id="toToolTip" text="" /></tooltip>
+                                                </Label>
                                     <HBox alignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowSpan="2" GridPane.valignment="CENTER">
                                        <children>
                                           <Button fx:id="reply" contentDisplay="TOP" mnemonicParsing="false" onAction="#replyActionEvent" textAlignment="CENTER">
