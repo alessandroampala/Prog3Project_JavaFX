@@ -17,6 +17,16 @@ public class Persistence {
         return 0;
     }
 
+    public static List<String> addressesExist(List<String> addresses) {
+        List<String> inexistentAddresses = new ArrayList<>();
+        for (String address : addresses)
+            if (!addressExists(address))
+                inexistentAddresses.add(address);
+        if (inexistentAddresses.isEmpty())
+            return null;
+        return inexistentAddresses;
+    }
+
     public static boolean addressExists(String address) {
         File dir = new File(folderName + "/" + address);
         if (!dir.exists())

@@ -152,16 +152,17 @@ public class Client {
                         }
                     } else {
                         System.out.println(received.getType());
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    new Toast(received.getType(), true).start();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                        if (!received.getType().equals("Nessuna email trovata"))
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        new Toast(received.getType(), true).start();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
-                        });
+                            });
                     }
                 }
 
@@ -424,6 +425,10 @@ public class Client {
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
+                                if(received.getType().contains("ERRORE: indirizzi email di destinazione non esistenti:")){
+                                    future.cancel(true);
+                                    future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 2, TimeUnit.MINUTES);
+                                }
                                 try {
                                     new Toast(received.getType(), true).start();
                                 } catch (Exception e) {
