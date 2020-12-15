@@ -47,8 +47,10 @@ public class CustomCell extends ListCell<Email> {
         super.updateItem(email, empty);
 
         if (empty || email == null) {
-            setText(null);
-            setGraphic(null);
+            Platform.runLater(() -> {
+                setText(null);
+                setGraphic(null);
+            });
         } else {
             Platform.runLater(() -> {
                 if (fxmlLoader == null) {
@@ -72,11 +74,8 @@ public class CustomCell extends ListCell<Email> {
                 dateLabel.setText(email.getDate().toString());
 
                 setText(null);
-
                 setGraphic(gridPane);
             });
-
         }
-
     }
 }
