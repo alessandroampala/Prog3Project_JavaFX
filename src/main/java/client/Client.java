@@ -19,10 +19,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -215,13 +212,13 @@ public class Client {
 
                             // Recalculate next id
                             int newLastId = 0;
-                            if(!emailsSent.isEmpty() && !emailsReceived.isEmpty())
+                            if (!emailsSent.isEmpty() && !emailsReceived.isEmpty())
                                 newLastId = Math.max(
                                         Collections.max(emailsSent, (e1, e2) -> e1.getId() - e2.getId()).getId(),
                                         Collections.max(emailsReceived, (e1, e2) -> e1.getId() - e2.getId()).getId()) + 1;
-                            else if(!emailsSent.isEmpty())
+                            else if (!emailsSent.isEmpty())
                                 newLastId = Collections.max(emailsSent, (e1, e2) -> e1.getId() - e2.getId()).getId() + 1;
-                            else  if(!emailsReceived.isEmpty())
+                            else if (!emailsReceived.isEmpty())
                                 newLastId = Collections.max(emailsReceived, (e1, e2) -> e1.getId() - e2.getId()).getId() + 1;
                             user.setLastId(newLastId);
 
@@ -314,7 +311,6 @@ public class Client {
 
     @FXML
     public void sendMail() {
-        // TODO:Check duplicates and avoid to send email to yourself
         String[] emails = to.getText().toLowerCase().split(",");
         Pattern pattern = Pattern.compile("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$");
 
@@ -361,7 +357,7 @@ public class Client {
         for (int i = 0; i < emails.length; i++)
             emails[i] = emails[i].trim();
 
-        Email email = new Email(-1, username.getText(), Arrays.asList(emails), subject.getText(), message.getText(), new Date(), true);
+        Email email = new Email(-1, username.getText(), new ArrayList<>(Set.of(emails)), subject.getText(), message.getText(), new Date(), true);
         Request send = new Request("Send email", email);
         new Thread(() -> {
             Socket socket = null;

@@ -91,6 +91,4 @@ public class Server {
             executor.shutdownNow();
         Platform.exit();
     }
-
-    //TODO: add bug when exiting server
 }
