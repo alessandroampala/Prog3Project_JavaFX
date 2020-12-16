@@ -269,10 +269,11 @@ public class Client {
 
         if (source.equals(reply)) {
             to.setText(fromMailText);
+            message.setText("\n\nIn risposta a:\n" + message.getText());
         } else if (source.equals(replyToAll)) {
             toMailText = toMailText.replace(user.getMail(), fromMailText);
             to.setText(toMailText);
-            message.setText("\n\nIn risposta a :\n" + message.getText());
+            message.setText("\n\nIn risposta a:\n" + message.getText());
         } else {
             to.setText("");
         }
