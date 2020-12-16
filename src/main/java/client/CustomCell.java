@@ -1,28 +1,19 @@
 package client;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import mail.Email;
-import mail.User;
 
 import java.io.IOException;
 
 public class CustomCell extends ListCell<Email> {
 
     private FXMLLoader fxmlLoader;
-    private User user;
-    private Button deleteBtnReceived, deleteBtnSent;
-    private boolean emailReceived;
+    private final boolean emailReceived;
 
     @FXML
     private Label titleLabel;
@@ -35,10 +26,7 @@ public class CustomCell extends ListCell<Email> {
     @FXML
     private GridPane gridPane;
 
-    public CustomCell(User user, Button deleteBtnReceived, Button deleteBtnSent, boolean emailReceived) {
-        this.user = user;
-        this.deleteBtnReceived = deleteBtnReceived;
-        this.deleteBtnSent = deleteBtnSent;
+    public CustomCell(boolean emailReceived) {
         this.emailReceived = emailReceived;
     }
 

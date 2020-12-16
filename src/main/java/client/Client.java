@@ -1,6 +1,8 @@
 package client;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -47,7 +49,7 @@ public class Client {
     @FXML
     private TextArea message;
     @FXML
-    private Button reply, replyToAll, deleteReceived, deleteSent;
+    private Button reply, replyToAll, deleteButton;
     @FXML
     private ListView<Email> listViewReceived, listViewSent;
     @FXML
@@ -70,27 +72,31 @@ public class Client {
         future = scheduledExecutor.scheduleAtFixedRate(this::loadEmails, 0, 10, TimeUnit.SECONDS);
         listViewReceived.setItems(emailsReceived);
         listViewSent.setItems(emailsSent);
-        listViewReceived.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent, true));
-        listViewSent.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent, false));
+        listViewReceived.setCellFactory(emailListView -> new CustomCell(true));
+        listViewSent.setCellFactory(emailListView -> new CustomCell(false));
         listViewSent.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         listViewReceived.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        //Bind deleteButton disableProperty, enabling it only when at least one mail is selected
+        BooleanBinding booleanBinding = Bindings.not(
+                Bindings.createBooleanBinding(() -> listViewSent.getSelectionModel().getSelectedIndices().size() > 0,
+                        listViewSent.getSelectionModel().getSelectedIndices())
+                        .or(Bindings.createBooleanBinding(() -> listViewReceived.getSelectionModel().getSelectedIndices().size() > 0,
+                                listViewReceived.getSelectionModel().getSelectedIndices())));
+        deleteButton.disableProperty().bind(booleanBinding);
+
 
         // Display selected mail on list selection
         ChangeListener<Email> selectedChangeListener = new ChangeListener<Email>() {
             @Override
             public void changed(ObservableValue<? extends Email> observable, Email oldValue, Email newValue) {
                 if (newValue != null) {
-                    deleteReceived.setDisable(false);
-                    deleteSent.setDisable(false);
                     subjectMail.setText(newValue.getObject());
                     messageMail.setText(newValue.getText());
                     fromMail.setText(newValue.getFrom());
                     toMail.setText(newValue.getStringTo());
                     toToolTip.setText(newValue.getStringTo());
                     readMail();
-                } else {
-                    deleteReceived.setDisable(true);
-                    deleteSent.setDisable(true);
                 }
             }
         };
@@ -110,8 +116,6 @@ public class Client {
                     reply.setVisible(true);
                     replyToAll.setVisible(true);
                 }
-                deleteReceived.setDisable(true);
-                deleteSent.setDisable(true);
                 user.clearIdsToDelete();
                 clearListsSelection();
             }
@@ -210,12 +214,8 @@ public class Client {
                             user.setLastId(newLastId);
 
                             user.clearIdsToDelete();
-                            deleteReceived.setDisable(false);
-                            deleteSent.setDisable(false);
                             clearListsSelection();
                             unselectedMail();
-                            deleteSent.setDisable(true);
-                            deleteReceived.setDisable(true);
                         });
 
                     } else {
