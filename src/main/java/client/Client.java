@@ -39,7 +39,9 @@ public class Client {
     private boolean firstMailLoad = true;
 
     @FXML
-    private Label username, fromNewMail, fromMail, toMail, subjectMail, messageMail;
+    private Label username, fromNewMail, fromMail, toMail, subjectMail;
+    @FXML
+    private TextArea messageMail;
     @FXML
     private VBox newMailContainer, readMailContainer;
     @FXML
@@ -311,7 +313,7 @@ public class Client {
         for (int i = 0; i < emails.length; i++)
             emails[i] = emails[i].trim();
 
-        Email email = new Email(-1, username.getText(), new ArrayList<>(Set.of(emails)), subject.getText(), message.getText(), new Date(), true);
+        Email email = new Email(-1, username.getText(), new ArrayList<>(new HashSet<>(Arrays.asList(emails))), subject.getText(), message.getText(), new Date(), true);
         Request send = new Request("Send email", email);
         new Thread(() -> {
             Socket socket = null;

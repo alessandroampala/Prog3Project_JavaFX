@@ -67,13 +67,11 @@ public class Server {
     void addLog(String log) {
         synchronized (observableList) {
             Platform.runLater(() -> observableList.add(log));
-
         }
     }
 
     @FXML
     public void exitApplication() {
-        ObjectOutputStream oos = null;
         PrintWriter printWriter = null;
         try {
             this.addLog(new Date() + " " + "SERVER SHUTDOWN");
