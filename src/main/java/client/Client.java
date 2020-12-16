@@ -143,14 +143,22 @@ public class Client {
                         if (firstMailLoad)
                             firstMailLoad = false;
                         for (Email email : emails) {
-                            if (email.getIsSent())
-                                emailsSent.add(email);
-                            else
-                                emailsReceived.add(email);
+                            if (email.getIsSent()) {
+                                synchronized (emailsSent) {
+                                    emailsSent.add(email);
+                                }
+                            } else
+                                synchronized (emailsReceived) {
+                                    emailsReceived.add(email);
+                                }
                         }
                         user.setLastId(emails.get(0).getId() + 1);
-                        Collections.sort(emailsSent);
-                        Collections.sort(emailsReceived);
+                        synchronized (emailsSent) {
+                            Collections.sort(emailsSent);
+                        }
+                        synchronized (emailsReceived) {
+                            Collections.sort(emailsReceived);
+                        }
                     }
                 } else {
                     System.out.println(received.getType());
@@ -196,21 +204,29 @@ public class Client {
                         //Remove mails from list
                         Platform.runLater(() -> {
                             user.getIdsToDelete().forEach(id -> {
-                                emailsSent.removeIf(email -> id == email.getId());
-                                emailsReceived.removeIf(email -> id == email.getId());
+                                synchronized (emailsSent) {
+                                    emailsSent.removeIf(email -> id == email.getId());
+                                }
+                                synchronized (emailsReceived) {
+                                    emailsReceived.removeIf(email -> id == email.getId());
+                                }
                             });
 
-                            // Recalculate next id
-                            int newLastId = 0;
-                            if (!emailsSent.isEmpty() && !emailsReceived.isEmpty())
-                                newLastId = Math.max(
-                                        Collections.max(emailsSent, Comparator.comparingInt(Email::getId)).getId(),
-                                        Collections.max(emailsReceived, Comparator.comparingInt(Email::getId)).getId()) + 1;
-                            else if (!emailsSent.isEmpty())
-                                newLastId = Collections.max(emailsSent, Comparator.comparingInt(Email::getId)).getId() + 1;
-                            else if (!emailsReceived.isEmpty())
-                                newLastId = Collections.max(emailsReceived, Comparator.comparingInt(Email::getId)).getId() + 1;
-                            user.setLastId(newLastId);
+                            synchronized (emailsSent) {
+                                synchronized (emailsReceived) {
+                                    // Recalculate next id
+                                    int newLastId = 0;
+                                    if (!emailsSent.isEmpty() && !emailsReceived.isEmpty())
+                                        newLastId = Math.max(
+                                                Collections.max(emailsSent, Comparator.comparingInt(Email::getId)).getId(),
+                                                Collections.max(emailsReceived, Comparator.comparingInt(Email::getId)).getId()) + 1;
+                                    else if (!emailsSent.isEmpty())
+                                        newLastId = Collections.max(emailsSent, Comparator.comparingInt(Email::getId)).getId() + 1;
+                                    else if (!emailsReceived.isEmpty())
+                                        newLastId = Collections.max(emailsReceived, Comparator.comparingInt(Email::getId)).getId() + 1;
+                                    user.setLastId(newLastId);
+                                }
+                            }
 
                             user.clearIdsToDelete();
                             clearListsSelection();
@@ -344,8 +360,10 @@ public class Client {
                                     future.cancel(true);
                                     future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 10, TimeUnit.SECONDS);
                                 } else {
-                                    emailsSent.add(email);
-                                    Collections.sort(emailsSent);
+                                    synchronized (emailsSent) {
+                                        emailsSent.add(email);
+                                        Collections.sort(emailsSent);
+                                    }
                                     user.setLastId(Math.max(user.getLastId(), email.getId() + 1));
                                 }
                             });
