@@ -26,11 +26,13 @@ public class CustomCell extends ListCell<Email> {
     @FXML
     private GridPane gridPane;
 
+    // Constructor
     public CustomCell(boolean emailReceived) {
         this.emailReceived = emailReceived;
     }
 
     @Override
+    // Updates the listview
     protected void updateItem(Email email, boolean empty) {
         super.updateItem(email, empty);
 

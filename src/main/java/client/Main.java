@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     @Override
+    // Loads login fxml and sets the default styles
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
         Parent root = loader.load();
@@ -23,7 +24,7 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-
+    // Starts the login window
     public static void main(String[] args) {
         launch(args);
     }

@@ -10,13 +10,7 @@ import java.util.List;
 public class Persistence {
     private static final String folderName = System.getProperty("user.dir") + "/" + "saves";
 
-    public static int prepareDir(String name) {
-        File dir = new File(folderName + "/" + name);
-        if (!dir.exists())
-            return -1;
-        return 0;
-    }
-
+    // Checks if a list of users exist
     public static List<String> addressesExist(List<String> addresses) {
         List<String> inexistentAddresses = new ArrayList<>();
         for (String address : addresses)
@@ -27,16 +21,16 @@ public class Persistence {
         return inexistentAddresses;
     }
 
+    // Checks if a user exists
     public static boolean addressExists(String address) {
         File dir = new File(folderName + "/" + address);
-        if (!dir.exists())
-            return false;
-        return true;
+        return dir.exists();
     }
 
+    // Saves emails in the correct folders
     public static synchronized int saveEmail(String name, Email data) {
         assert data != null;
-        if (prepareDir(name) == -1) return -1;
+        if (!addressExists(name)) return -1;
         FileOutputStream fout = null;
         int id = -1;
         try {
@@ -61,32 +55,7 @@ public class Persistence {
         return id;
     }
 
-    public static Email loadEmail(String name, int id) {
-        String filePath = folderName + "/" + name + "/" + id;
-        ObjectInputStream in = null;
-        if (!new File(filePath).exists())
-            return null;
-        try {
-            in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(filePath)));
-            Object o = in.readObject();
-            if (o != null && o.getClass().equals(Email.class))
-                return (Email) o;
-            else
-                return null;
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
+    // Loads users checking existing folders
     public static List<User> loadUsers() {
         List<User> users = new ArrayList<>();
         if (!new File(folderName).exists()) {
@@ -100,6 +69,7 @@ public class Persistence {
         return users;
     }
 
+    // Deletes email from a folder
     public static void deleteEmail(String name, int id) {
         String filePath = folderName + "/" + name + "/" + id;
         if (!new File(filePath).exists())
@@ -108,6 +78,7 @@ public class Persistence {
         in.delete();
     }
 
+    // Loads emails from the given point
     public static List<Email> loadEmailsFromId(String name, int id) {
         List<Email> emails = new ArrayList<>();
         File dir = new File(folderName + "/" + name);
@@ -136,12 +107,8 @@ public class Persistence {
         return emails;
     }
 
-    public static List<Email> loadAllEmails(String name) {
-        return loadEmailsFromId(name, 0);
-    }
-
+    // Calculates the next id for a new email
     private static int calculateNextId(String name) {
-        List<Email> emails = new ArrayList<>();
         File dir = new File(folderName + "/" + name);
         File[] files = dir.listFiles();
 

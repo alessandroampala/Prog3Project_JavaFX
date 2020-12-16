@@ -1,10 +1,7 @@
 package client;
 
 import javafx.animation.PauseTransition;
-import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -15,23 +12,22 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
-import java.io.IOException;
-
 public class Toast {
     @FXML
     private TextArea message;
     @FXML
     private Label success, error;
 
-    private String messageText;
-    private boolean errorFlag;
+    private final String messageText;
+    private final boolean errorFlag;
 
+    // Constructor
     public Toast(String message, boolean errorFlag) {
         messageText = message;
         this.errorFlag = errorFlag;
     }
 
-
+    // Loads the toast fxml and sets the default styles
     public void start() throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("toast.fxml"));
         loader.setController(this);
@@ -44,6 +40,7 @@ public class Toast {
         popup.setMinHeight(120);
         popup.setMinWidth(300);
         popup.setScene(new Scene(pane));
+        popup.setAlwaysOnTop(true);
         popup.initStyle(StageStyle.TRANSPARENT);
         if (errorFlag) {
             success.setVisible(false);
@@ -61,16 +58,13 @@ public class Toast {
         delay.play();
     }
 
-    public static void show(String content, boolean error)
-    {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    new Toast(content, error).start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+    // Shows the toast
+    public static void show(String content, boolean error) {
+        Platform.runLater(() -> {
+            try {
+                new Toast(content, error).start();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }

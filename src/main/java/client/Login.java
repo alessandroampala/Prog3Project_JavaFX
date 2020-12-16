@@ -31,10 +31,12 @@ public class Login {
     private Button loginBtn;
 
     @FXML
+    // Initializes the login controller
     public void initialize() {
         loadUsers();
     }
 
+    // Requests to the server all the users
     private void loadUsers() {
         new Thread(() -> {
             Socket socket = null;
@@ -76,6 +78,7 @@ public class Login {
     }
 
     @FXML
+    // Loads the client fxml and its default styles, initializes the client controller
     public void login() throws Exception {
         if (userSelected.getSelectionModel().getSelectedItem().equals("- Seleziona una mail -"))
             return;
@@ -96,7 +99,6 @@ public class Login {
         stage.show();
 
         ((Stage) loginBtn.getScene().getWindow()).close();
-
         stage.setOnHiding(e -> client.exitApplication());
     }
 }

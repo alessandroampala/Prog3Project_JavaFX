@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -60,12 +59,14 @@ public class Client {
     private Tooltip toToolTip;
 
     @FXML
+    // When app is closing, shutdown the scheduled executor if exists
     public void exitApplication() {
         if (scheduledExecutor != null)
             scheduledExecutor.shutdownNow();
         Platform.exit();
     }
 
+    // Loads all the data received
     public void initializeClient(User user) {
         this.user = user;
         username.setText(user.getMail());
@@ -89,42 +90,37 @@ public class Client {
 
 
         // Display selected mail on list selection
-        ChangeListener<Email> selectedChangeListener = new ChangeListener<Email>() {
-            @Override
-            public void changed(ObservableValue<? extends Email> observable, Email oldValue, Email newValue) {
-                if (newValue != null) {
-                    subjectMail.setText(newValue.getObject());
-                    messageMail.setText(newValue.getText());
-                    fromMail.setText(newValue.getFrom());
-                    toMail.setText(newValue.getStringTo());
-                    toToolTip.setText(newValue.getStringTo());
-                    readMail();
-                }
+        ChangeListener<Email> selectedChangeListener = (observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                subjectMail.setText(newValue.getObject());
+                messageMail.setText(newValue.getText());
+                fromMail.setText(newValue.getFrom());
+                toMail.setText(newValue.getStringTo());
+                toToolTip.setText(newValue.getStringTo());
+                readMail();
             }
         };
         listViewReceived.getSelectionModel().selectedItemProperty().addListener(selectedChangeListener);
         listViewSent.getSelectionModel().selectedItemProperty().addListener(selectedChangeListener);
 
         // Clear list selection when changing tab
-        tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-            @Override
-            public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
-                if (readMailContainer.isVisible())
-                    unselectedMail();
-                if (tabPane.getSelectionModel().getSelectedIndex() == 1) {
-                    reply.setVisible(false);
-                    replyToAll.setVisible(false);
-                } else {
-                    reply.setVisible(true);
-                    replyToAll.setVisible(true);
-                }
-                user.clearIdsToDelete();
-                clearListsSelection();
+        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (readMailContainer.isVisible())
+                unselectedMail();
+            if (tabPane.getSelectionModel().getSelectedIndex() == 1) {
+                reply.setVisible(false);
+                replyToAll.setVisible(false);
+            } else {
+                reply.setVisible(true);
+                replyToAll.setVisible(true);
             }
+            user.clearIdsToDelete();
+            clearListsSelection();
         });
 
     }
 
+    // Loads the emails received from the server with a request
     private void loadEmails() {
         Socket socket = null;
         try {
@@ -181,6 +177,7 @@ public class Client {
     }
 
     @FXML
+    // Sends a request to the server to delete emails selected
     private void deleteEmails() {
         new Thread(() -> {
             Socket socket = null;
@@ -207,12 +204,12 @@ public class Client {
                             int newLastId = 0;
                             if (!emailsSent.isEmpty() && !emailsReceived.isEmpty())
                                 newLastId = Math.max(
-                                        Collections.max(emailsSent, (e1, e2) -> e1.getId() - e2.getId()).getId(),
-                                        Collections.max(emailsReceived, (e1, e2) -> e1.getId() - e2.getId()).getId()) + 1;
+                                        Collections.max(emailsSent, Comparator.comparingInt(Email::getId)).getId(),
+                                        Collections.max(emailsReceived, Comparator.comparingInt(Email::getId)).getId()) + 1;
                             else if (!emailsSent.isEmpty())
-                                newLastId = Collections.max(emailsSent, (e1, e2) -> e1.getId() - e2.getId()).getId() + 1;
+                                newLastId = Collections.max(emailsSent, Comparator.comparingInt(Email::getId)).getId() + 1;
                             else if (!emailsReceived.isEmpty())
-                                newLastId = Collections.max(emailsReceived, (e1, e2) -> e1.getId() - e2.getId()).getId() + 1;
+                                newLastId = Collections.max(emailsReceived, Comparator.comparingInt(Email::getId)).getId() + 1;
                             user.setLastId(newLastId);
 
                             user.clearIdsToDelete();
@@ -244,6 +241,7 @@ public class Client {
     }
 
     @FXML
+    // Manages the following buttons click "Reply", "Reply All" and "Inoltra"
     public void replyActionEvent(ActionEvent event) {
         Object source = event.getSource();
 
@@ -260,12 +258,15 @@ public class Client {
         } else {
             to.setText("");
         }
+        user.clearIdsToDelete();
+        clearListsSelection();
         subject.setText(subjectMailText);
         message.setText(messageMailText);
         newMail(true);
     }
 
     @FXML
+    // Requests to the server to send an email to a list of mails
     public void sendMail() {
         String[] emails = to.getText().toLowerCase().split(",");
         Pattern pattern = Pattern.compile("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$");
@@ -332,40 +333,34 @@ public class Client {
                             int mailId = (Integer) obj;
                             email.setId(mailId);
                             //Add this email to Inviati List (run on FX thread)
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        new Toast("Email sent", false).start();
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                    if (Arrays.asList(emails).contains(fromNewMail.getText())) {
-                                        future.cancel(true);
-                                        future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 10, TimeUnit.SECONDS);
-                                    } else {
-                                        emailsSent.add(email);
-                                        Collections.sort(emailsSent);
-                                        user.setLastId(Math.max(user.getLastId(), email.getId() + 1));
-                                    }
+                            Platform.runLater(() -> {
+                                try {
+                                    new Toast("Email sent", false).start();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                if (Arrays.asList(emails).contains(fromNewMail.getText())) {
+                                    future.cancel(true);
+                                    future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 10, TimeUnit.SECONDS);
+                                } else {
+                                    emailsSent.add(email);
+                                    Collections.sort(emailsSent);
+                                    user.setLastId(Math.max(user.getLastId(), email.getId() + 1));
                                 }
                             });
                             unselectedMail();
                         }
                     } else {
                         System.out.println(received.getType());
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (received.getType().contains("ERRORE: indirizzi email di destinazione non esistenti:")) {
-                                    future.cancel(true);
-                                    future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 10, TimeUnit.SECONDS);
-                                }
-                                try {
-                                    new Toast(received.getType(), true).start();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                        Platform.runLater(() -> {
+                            if (received.getType().contains("ERRORE: indirizzi email di destinazione non esistenti:")) {
+                                future.cancel(true);
+                                future = scheduledExecutor.scheduleAtFixedRate(Client.this::loadEmails, 0, 10, TimeUnit.SECONDS);
+                            }
+                            try {
+                                new Toast(received.getType(), true).start();
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         });
                     }
@@ -391,12 +386,14 @@ public class Client {
     }
 
     @FXML
+    // Clears the field of the new email pane
     public void newMail() {
         clearListsSelection();
         clearFields();
         newMail(true);
     }
 
+    // Shows the pane for a new email
     public void newMail(boolean reply) {
         if (reply) {
             newMailContainer.setVisible(true);
@@ -405,24 +402,28 @@ public class Client {
         }
     }
 
+    // Shows the pane for a email to read
     public void readMail() {
         newMailContainer.setVisible(false);
         readMailContainer.setVisible(true);
         unselectedMailContainer.setVisible(false);
     }
 
+    // Shows the default pane
     public void unselectedMail() {
         newMailContainer.setVisible(false);
         readMailContainer.setVisible(false);
         unselectedMailContainer.setVisible(true);
     }
 
+    // Clears the fields for a new email
     private void clearFields() {
         to.setText("");
         subject.setText("");
         message.setText("");
     }
 
+    // Unselects all the cards of the listview
     private void clearListsSelection() {
         listViewReceived.getSelectionModel().clearSelection();
         listViewSent.getSelectionModel().clearSelection();

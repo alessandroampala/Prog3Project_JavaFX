@@ -4,7 +4,6 @@ import mail.Email;
 import mail.Request;
 import mail.User;
 
-import javax.swing.text.html.ListView;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,15 +15,20 @@ import java.util.List;
 
 public class RequestHandler implements Runnable {
 
-    private Socket socket;
-    private Server server;
+    private final Socket socket;
+    private final Server server;
 
+    // Constructor
     public RequestHandler(Socket socket, Server server) {
         this.socket = socket;
         this.server = server;
     }
 
     @Override
+    /*
+     * Runs when thread starts
+     * Manages the requests from the clients
+     */
     public void run() {
         try {
             ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
@@ -35,13 +39,13 @@ public class RequestHandler implements Runnable {
             if (received != null && received.getClass().equals(Request.class)) {
                 Request request = (Request) received;
                 switch (request.getType()) {
-                    //HANDLE REQUEST
+                    //Saves emails in the correct folders and returns a response
                     case "Send email":
                         obj = request.getData();
                         if (obj != null && obj.getClass().equals(Email.class)) {
                             Email email = (Email) obj;
                             List<String> addresses = email.getTo();
-                            List<String> inexistentAddresses = new ArrayList<>();
+                            List<String> inexistentAddresses;
                             if (Persistence.addressExists(email.getFrom())) {
                                 if ((inexistentAddresses = Persistence.addressesExist(addresses)) != null) {
                                     Persistence.saveEmail(email.getFrom(), new Email(-1, "No-reply@localhost.com", Collections.singletonList(email.getFrom()), "ERROR SENDING EMAIL", "SUBJECT: " + email.getObject() + "\n\nMESSAGE: " + email.getText() + "\n\nDATE: " + email.getDate() + "\n\nThe following emails don't exist: " + inexistentAddresses.toString(), new Date(), false));
@@ -62,6 +66,7 @@ public class RequestHandler implements Runnable {
                         } else
                             this.server.addLog(new Date() + " " + "Message: Data not received");
                         break;
+                    //Loads new emails and returns a response
                     case "Receive emails":
                         obj = request.getData();
                         if (obj != null && obj.getClass().equals(User.class)) {
@@ -76,6 +81,7 @@ public class RequestHandler implements Runnable {
                         } else
                             this.server.addLog(new Date() + " " + "Message: Data not received");
                         break;
+                    //Deletes emails in the user folder and returns a response
                     case "Delete emails":
                         obj = request.getData();
                         if (obj != null && obj.getClass().equals(User.class)) {
@@ -88,6 +94,7 @@ public class RequestHandler implements Runnable {
                         } else
                             this.server.addLog(new Date() + " " + "Message: Data not received");
                         break;
+                    //Loads available users and returns a response
                     case "Load users":
                         List<User> users = Persistence.loadUsers();
                         if (!users.isEmpty()) {
