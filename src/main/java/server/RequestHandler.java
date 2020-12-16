@@ -48,7 +48,7 @@ public class RequestHandler implements Runnable {
                             List<String> inexistentAddresses;
                             if (Persistence.addressExists(email.getFrom())) {
                                 if ((inexistentAddresses = Persistence.addressesExist(addresses)) != null) {
-                                    Persistence.saveEmail(email.getFrom(), new Email(-1, "No-reply@localhost.com", Collections.singletonList(email.getFrom()), "ERROR SENDING EMAIL", "SUBJECT: " + email.getObject() + "\n\nMESSAGE: " + email.getText() + "\n\nDATE: " + email.getDate() + "\n\nThe following emails don't exist: " + inexistentAddresses.toString(), new Date(), false));
+                                    Persistence.saveEmail(email.getFrom(), new Email(-1, "No-reply@localhost.com", Collections.singletonList(email.getFrom()), "ERROR SENDING EMAIL", "SUBJECT: " + email.getObject() + "\n\nMESSAGE: " + email.getText() + "\n\nDATE: " + email.getDate() + "\n\n TO: " + email.getStringTo() + "\n\nThe following emails don't exist: " + inexistentAddresses.toString(), new Date(), false));
                                     outStream.writeObject(new Request("ERRORE: indirizzi email di destinazione non esistenti:\n" + inexistentAddresses.toString(), null));
                                     this.server.addLog(new Date() + " " + "From: " + addresses + " Message: ERRORE: indirizzi email di destinazione non esistenti:\n" + inexistentAddresses.toString());
                                 } else {

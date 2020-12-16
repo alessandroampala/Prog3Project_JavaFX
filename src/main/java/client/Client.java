@@ -249,19 +249,20 @@ public class Client {
         String toMailText = toMail.getText();
         String subjectMailText = subjectMail.getText();
         String messageMailText = messageMail.getText();
+        message.setText(messageMailText);
 
         if (source.equals(reply)) {
             to.setText(fromMailText);
         } else if (source.equals(replyToAll)) {
             toMailText = toMailText.replace(user.getMail(), fromMailText);
             to.setText(toMailText);
+            message.setText("\n\nIn risposta a :\n" + message.getText());
         } else {
             to.setText("");
         }
         user.clearIdsToDelete();
         clearListsSelection();
         subject.setText(subjectMailText);
-        message.setText(messageMailText);
         newMail(true);
     }
 

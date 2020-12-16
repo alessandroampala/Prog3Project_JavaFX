@@ -70,7 +70,7 @@ public class Persistence {
     }
 
     // Deletes email from a folder
-    public static void deleteEmail(String name, int id) {
+    public static synchronized void deleteEmail(String name, int id) {
         String filePath = folderName + "/" + name + "/" + id;
         if (!new File(filePath).exists())
             return;
@@ -79,7 +79,7 @@ public class Persistence {
     }
 
     // Loads emails from the given point
-    public static List<Email> loadEmailsFromId(String name, int id) {
+    public static synchronized List<Email> loadEmailsFromId(String name, int id) {
         List<Email> emails = new ArrayList<>();
         File dir = new File(folderName + "/" + name);
         File[] files = dir.listFiles();
