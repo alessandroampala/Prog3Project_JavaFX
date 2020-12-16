@@ -10,8 +10,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.util.Callback;
 import mail.Email;
 import mail.Request;
 import mail.User;
@@ -74,6 +72,8 @@ public class Client {
         listViewSent.setItems(emailsSent);
         listViewReceived.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent, true));
         listViewSent.setCellFactory(emailListView -> new CustomCell(user, deleteReceived, deleteSent, false));
+        listViewSent.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        listViewReceived.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         // Display selected mail on list selection
         ChangeListener<Email> selectedChangeListener = new ChangeListener<Email>() {
@@ -82,9 +82,6 @@ public class Client {
                 if (newValue != null) {
                     deleteReceived.setDisable(false);
                     deleteSent.setDisable(false);
-                    if (oldValue != null)
-                        user.clearIdsToDelete();
-                    user.addIdsToDelete(newValue.getId());
                     subjectMail.setText(newValue.getObject());
                     messageMail.setText(newValue.getText());
                     fromMail.setText(newValue.getFrom());
@@ -92,8 +89,6 @@ public class Client {
                     toToolTip.setText(newValue.getStringTo());
                     readMail();
                 } else {
-                    if (oldValue != null)
-                        user.clearIdsToDelete();
                     deleteReceived.setDisable(true);
                     deleteSent.setDisable(true);
                 }
@@ -187,7 +182,9 @@ public class Client {
                 socket = new Socket(ADDRESS, PORT);
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                 ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
-                int id = user.getIdsToDelete().get(0);
+                listViewSent.getSelectionModel().getSelectedItems().forEach(email -> user.addIdsToDelete(email.getId()));
+                listViewReceived.getSelectionModel().getSelectedItems().forEach(email -> user.addIdsToDelete(email.getId()));
+
                 outStream.writeObject(new Request("Delete emails", user));
                 Object obj = in.readObject();
                 if (obj != null && obj.getClass().equals(Request.class)) {
@@ -195,8 +192,10 @@ public class Client {
                         System.out.println("Emails deleted");
                         //Remove mails from list
                         Platform.runLater(() -> {
-                            emailsSent.removeIf(email -> id == email.getId());
-                            emailsReceived.removeIf(email -> id == email.getId());
+                            user.getIdsToDelete().forEach(id -> {
+                                emailsSent.removeIf(email -> id == email.getId());
+                                emailsReceived.removeIf(email -> id == email.getId());
+                            });
 
                             // Recalculate next id
                             int newLastId = 0;
@@ -396,8 +395,8 @@ public class Client {
         newMail(true);
     }
 
-    public void newMail(boolean replay) {
-        if (replay) {
+    public void newMail(boolean reply) {
+        if (reply) {
             newMailContainer.setVisible(true);
             readMailContainer.setVisible(false);
             unselectedMailContainer.setVisible(false);
