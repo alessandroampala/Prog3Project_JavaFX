@@ -59,18 +59,22 @@ public class Login {
                         }
                     } else {
                         System.out.println(received.getType());
+                        Toast.show(received.getType(), true);
                     }
                 }
             } catch (IOException e) {
                 System.out.println("Connection Error");
+                Toast.show("Connection Error", true);
             } catch (ClassNotFoundException e) {
                 System.out.println("Class not found");
+                Toast.show("Class not found", true);
             } finally {
                 if (socket != null) {
                     try {
                         socket.close();
                     } catch (IOException e) {
                         System.out.println("Error during socket disconnection");
+                        Toast.show("Error during socket disconnection", true);
                     }
                 }
             }
